@@ -4,15 +4,20 @@ export interface EventProps {
     name: string;
     date: Date;
     capacity: number;
-    location: string; }
+    location: string;
+    cost: number;
+    venueId: string;
+}
 
     //2. LA ENTIDAD:
 export class Event {
     public readonly id?: string;
     public name: string;
     public date: Date;
+    public cost: number;
     public capacity: number;
     public location: string;
+    public venueId: string;
 
     //3. CONSTRUCTOR:
     constructor(props: EventProps) {
@@ -23,6 +28,8 @@ export class Event {
         this.date = props.date;
         this.capacity = props.capacity;
         this.location = props.location;
+        this.cost = props.cost;
+        this.venueId = props.venueId;
     }
     private validate(props: EventProps) {
     if (!props.name || props.name.trim() === '') {
@@ -34,6 +41,12 @@ export class Event {
     const now = new Date();
     if (props.date < now) {
       throw new Error("No puedes programar un evento en una fecha pasada.");
+    }
+    if (props.cost <= 0) {
+      throw new Error("El costo del evento debe ser mayor a 0.");
+    }
+    if (props.venueId && props.venueId.trim() === '') {
+      throw new Error("El ID del lugar no puede estar vacío.");
     }
   }
 }
