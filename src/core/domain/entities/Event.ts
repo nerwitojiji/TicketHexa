@@ -1,10 +1,9 @@
 //1. TIPOS:
 export interface EventProps {
-    id?: string;
+    id ?: string;
     name: string;
     date: Date;
     capacity: number;
-    location: string;
     cost: number;
     venueId: string;
 }
@@ -16,7 +15,6 @@ export class Event {
     public date: Date;
     public cost: number;
     public capacity: number;
-    public location: string;
     public venueId: string;
 
     //3. CONSTRUCTOR:
@@ -27,7 +25,6 @@ export class Event {
         this.name = props.name;
         this.date = props.date;
         this.capacity = props.capacity;
-        this.location = props.location;
         this.cost = props.cost;
         this.venueId = props.venueId;
     }

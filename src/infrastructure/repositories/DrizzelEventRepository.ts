@@ -20,8 +20,6 @@ export class DrizzleEventRepository implements IEventRepository {
       name: event.name,
       date: event.date,
       capacity: event.capacity,
-      // NOTA: Para que esto coincida exacto con tu schema, tendríamos que 
-      // actualizar tu entidad Event.ts para que acepte 'cost' y 'venueId'.
       cost: event.cost, 
       venueId: event.venueId, 
     });
