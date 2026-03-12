@@ -23,7 +23,7 @@ export async function POST (request: Request){
             date : new Date(body.date),
             capacity: body.capacity,
             cost : body.cost,
-            venueId: body.venueid
+            venueId: body.venueId
         });
         // 4. RESPONDER AL CLIENTE
         // Devuelve un NextResponse en formato JSON indicando que todo salió bien (Status 201)
