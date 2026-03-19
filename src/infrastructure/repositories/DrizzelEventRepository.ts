@@ -1,6 +1,7 @@
 // src/infrastructure/repositories/DrizzleEventRepository.ts
 
 // 1. Importamos el dominio y el puerto (El Jefe y el Contrato)
+import { eq } from 'drizzle-orm';
 import { Event } from '../../core/domain/entities/Event';
 import { IEventRepository } from '../../core/ports/IEventRepository';
 
@@ -27,11 +28,36 @@ export class DrizzleEventRepository implements IEventRepository {
 
   async findById(id: string): Promise<Event | null> {
     // Aquí iría el código Drizzle para buscar (SELECT * FROM events WHERE id = ?)
-    throw new Error("Método no implementado todavía");
+    const result = await db.select().from(eventsTable).where(eq(eventsTable.id,id));
+
+    if(result.length == 0){
+      return null;
+    }
+
+    const FoundRes= result[0];
+
+    const event= new Event({
+      id: FoundRes.id, 
+      name: FoundRes.name,
+      date: FoundRes.date,
+      capacity: FoundRes.capacity,
+      cost: FoundRes.cost, 
+      venueId: FoundRes.venueId, 
+    });
+
+    return event;
   }
 
   async findAll(): Promise<Event[]> {
-    // Aquí iría el código Drizzle para traer todos
-    throw new Error("Método no implementado todavía");
+    const result = await db.select().from(eventsTable);
+
+    return result.map(row => new Event({
+      id: row.id,
+      name: row.name,
+      date: row.date,
+      capacity: row.capacity,
+      cost: row.cost,
+      venueId: row.venueId
+    }));
   }
 }

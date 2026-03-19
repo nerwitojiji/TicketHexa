@@ -38,3 +38,15 @@ export async function POST (request: Request){
     return NextResponse.json({error : error.message}, {status: 400});
     }
 }
+
+export async function GET (){
+    try{
+        const repository = new DrizzleEventRepository();
+        const result = await repository.findAll();
+        
+        return NextResponse.json(result, {status: 200});
+    }
+    catch (error: any){
+        return NextResponse.json({error : "no se pudieron cargar los datos"}, {status: 500});
+}
+}
