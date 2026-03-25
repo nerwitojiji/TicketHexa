@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { DrizzleEventRepository } from '@/src/infrastructure/repositories/DrizzelEventRepository';
 
-export async function GET(request: Request, {params}:{params:{id:string}}) {
+export async function GET(request: Request, {params}:{params: Promise<{id:string}>}) {
     try{
-        const IdBuscado = params.id
+        const Parametros = await params
+        const IdBuscado =  Parametros.id
         const repository = new DrizzleEventRepository();
         const result = await repository.findById(IdBuscado);
 

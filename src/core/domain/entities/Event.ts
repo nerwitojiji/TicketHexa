@@ -1,3 +1,5 @@
+import { error } from "console";
+
 //1. TIPOS:
 export interface EventProps {
     id ?: string;
@@ -29,6 +31,9 @@ export class Event {
         this.venueId = props.venueId;
     }
     private validate(props: EventProps) {
+      if (!props.name || props.name.length < 3 ){
+        throw new Error("el nombre debe contener mas de 3 caracteres");
+      }
     if (!props.name || props.name.trim() === '') {
       throw new Error("El nombre del evento no puede estar vacío.");
     }

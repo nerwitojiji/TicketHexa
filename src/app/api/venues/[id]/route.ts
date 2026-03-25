@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server';
 import { DrizzleVenueRepository } from '@/src/infrastructure/repositories/DrizzelVenueRepository';
 
 
-export async function GET(request: Request, {params}:{params:{id:string}}) {
+export async function GET(request: Request, {params}:{params:Promise<{id:string}>}) {
     try{
         // 1. Extraer ID de busqueda
-        const id = params.id
+        const parametros = await params;
+        const id = parametros.id;
 
         // 2. Crear instancia DrizzleVenueRepository: encargado de drizzle + vent -> implementacion del como se guardan y buscan datos en db de venue  
         const repository = new DrizzleVenueRepository();
