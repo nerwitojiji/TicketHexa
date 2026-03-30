@@ -7,4 +7,6 @@ export interface IEventRepository {
     findById(id: string): Promise<Event | null>;
     // Trae todos los eventos 
     findAll(): Promise<Event[]>;
+
+    update(event: Event): Promise<void>;
 }

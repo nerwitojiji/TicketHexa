@@ -2,7 +2,7 @@ import { error } from "console";
 
 //1. TIPOS:
 export interface EventProps {
-    id ?: string;
+    id : string;
     name: string;
     date: Date;
     capacity: number;
@@ -12,7 +12,7 @@ export interface EventProps {
 
     //2. LA ENTIDAD:
 export class Event {
-    public readonly id?: string;
+    public readonly id: string;
     public name: string;
     public date: Date;
     public cost: number;
@@ -30,12 +30,16 @@ export class Event {
         this.cost = props.cost;
         this.venueId = props.venueId;
     }
-    private validate(props: EventProps) {
-      if (!props.name || props.name.length < 3 ){
-        throw new Error("el nombre debe contener mas de 3 caracteres");
+    //4. Metodo para vender Tickets
+    public SellTicket(cantidad: number):void {
+      if (this.capacity < cantidad){
+        throw new Error("Capacidad insuficiente");
       }
-    if (!props.name || props.name.trim() === '') {
-      throw new Error("El nombre del evento no puede estar vacío.");
+      this.capacity= this.capacity - cantidad;
+    }
+    private validate(props: EventProps) {
+    if (!props.name || props.name.trim().length < 3) {
+      throw new Error("El nombre del evento no puede estar vacío y debe ser mayor a 3 caracteres");
     }
     if (props.capacity <= 0) {
       throw new Error("La capacidad máxima debe ser mayor a 0.");

@@ -39,3 +39,4 @@ export class CreateEventUseCase{
 
     }
 }
+// TAREA : CREAR METODO PARA HACER UPDATE A UN EVENTO

@@ -60,4 +60,13 @@ export class DrizzleEventRepository implements IEventRepository {
       venueId: row.venueId
     }));
   }
+  public async update(event: Event): Promise<void> {
+    await db.update(eventsTable).set({
+      capacity: event.capacity,
+      name: event.name,
+      cost: event.cost,
+      venueId: event.venueId,
+      date: event.date
+    }).where(eq(eventsTable.id, event.id));
+  }
 }
