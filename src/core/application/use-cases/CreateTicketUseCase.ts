@@ -14,7 +14,7 @@ export class CreateTicketUseCase{
         private readonly eventRepository: IEventRepository,
         private readonly ticketRepository: ITicketRepository
     ){}
-    public async excecute(data : CreateTicketDTO): Promise<Ticket>{
+    public async execute(data : CreateTicketDTO): Promise<Ticket>{
         const event =await this.eventRepository.findById(data.eventID);
         if (!event){
             throw new Error("el evento solicitado no existe");

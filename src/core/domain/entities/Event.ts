@@ -20,7 +20,7 @@ export class Event {
     public venueId: string;
 
     //3. CONSTRUCTOR:
-    constructor(props: EventProps) {
+    private constructor(props: EventProps) {
         this.validate(props);
 
         this.id = props.id;
@@ -30,7 +30,17 @@ export class Event {
         this.cost = props.cost;
         this.venueId = props.venueId;
     }
-    //4. Metodo para vender Tickets
+    //4. 2 Puertas para validacion de eventos
+    //PUERTA A: VALIDA UN EVENTO QUE SE ESTA CREANDO 
+    static create(props: EventProps): Event {
+      Event.validateCreationRules(props);
+      return new Event(props);
+    }
+    //PUERTA B: SE SALTA LA VALIDACION , PARA TRABAJAR CON UN EVENTO QUE YA HA SIDO CREADO
+    static reconstitute(props:EventProps): Event{
+      return new Event(props);
+    }
+    //5. Metodo para vender Tickets
     public SellTicket(cantidad: number):void {
       if (this.capacity < cantidad){
         throw new Error("Capacidad insuficiente");
@@ -44,15 +54,17 @@ export class Event {
     if (props.capacity <= 0) {
       throw new Error("La capacidad máxima debe ser mayor a 0.");
     }
-    const now = new Date();
-    if (props.date < now) {
-      throw new Error("No puedes programar un evento en una fecha pasada.");
-    }
     if (props.cost <= 0) {
       throw new Error("El costo del evento debe ser mayor a 0.");
     }
     if (props.venueId && props.venueId.trim() === '') {
       throw new Error("El ID del lugar no puede estar vacío.");
+    }
+  }
+  private static validateCreationRules(props: EventProps) {
+    const now= new(Date);
+    if (props.date < now) {
+      throw new Error("La fecha del evento no puede ser anterior a la fecha actual.");
     }
   }
 }

@@ -21,7 +21,7 @@ export class CreateEventUseCase{
         // Asígnale una nueva instancia de tu clase Event usando la palabra 'new'.
         // Recuerda que el primer parámetro de Event es el ID. Puedes generar uno usando 'crypto.randomUUID()'
         // Los demás parámetros sácalos del objeto 'data' (data.name, data.date, etc.)
-        const newEvent = new Event({
+        const newEvent = Event.create({
             id: crypto.randomUUID(),
             name: data.name ,
             date: data.date ,

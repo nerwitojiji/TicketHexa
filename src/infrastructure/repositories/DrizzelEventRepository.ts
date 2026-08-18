@@ -36,7 +36,7 @@ export class DrizzleEventRepository implements IEventRepository {
 
     const FoundRes= result[0];
 
-    const event= new Event({
+    const event= Event.reconstitute({
       id: FoundRes.id, 
       name: FoundRes.name,
       date: FoundRes.date,
@@ -51,7 +51,7 @@ export class DrizzleEventRepository implements IEventRepository {
   async findAll(): Promise<Event[]> {
     const result = await db.select().from(eventsTable);
 
-    return result.map(row => new Event({
+    return result.map(row => Event.reconstitute({
       id: row.id,
       name: row.name,
       date: row.date,
