@@ -1,0 +1,1866 @@
+<title>Sintaxis TicketHexa</title>
+
+<style>
+  /* ============ TOKENS ============================================
+     Diseño comprometido a oscuro: una sola paleta, sin media query
+     ni data-theme. Cada color se pinta explícitamente para que la
+     página se sostenga sobre cualquier fondo del visor.
+     ================================================================ */
+  :root {
+    --ground:      #131019;
+    --surface:     #1A1622;
+    --surface-2:   #221C2C;
+    --ink:         #F0EAF5;
+    --ink-soft:    #B6ABC1;
+    --ink-faint:   #877C94;
+    --rule:        #2E2738;
+    --rule-strong: #453A52;
+
+    --accent:      #FF7CAF;
+    --accent-ink:  #FF7CAF;
+    --accent-wash: #371A27;
+
+    --domain:      #C69CF2;
+    --port:        #7FB4E9;
+    --infra:       #5ECABE;
+
+    --ok:          #6FE3A2;
+    --warn:        #F2B665;
+    --bad:         #FF8FA1;
+    --ok-wash:     #16281E;
+    --warn-wash:   #2B2115;
+    --bad-wash:    #2E1820;
+
+    --code-bg:     #1E1727;
+    --code-ink:    #E6DCF0;
+    --code-comment:#8B7E98;
+
+    --shadow:      0 1px 2px rgba(0,0,0,.35), 0 10px 28px -14px rgba(0,0,0,.7);
+
+    --font-display: system-ui, "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body:    Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    --font-mono:    ui-monospace, "Cascadia Code", "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+
+    color-scheme: dark;
+  }
+
+  /* ============ BASE ============ */
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.68;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--accent-wash); color: var(--accent-ink); }
+
+  a { color: var(--accent-ink); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible,
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  /* ============ MASTHEAD ============ */
+  .masthead {
+    border-bottom: 1px solid var(--rule);
+    background: var(--surface);
+  }
+  .masthead-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 56px 32px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+    max-width: 120px;
+  }
+  .masthead h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 6vw, 3.9rem);
+    font-weight: 750;
+    letter-spacing: -.03em;
+    line-height: 1.02;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 1.12rem;
+    color: var(--ink-soft);
+    max-width: 60ch;
+    margin: 0;
+  }
+  .masthead-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    padding-top: 6px;
+  }
+
+  /* ============ SHELL ============ */
+  .shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px 96px;
+    display: grid;
+    grid-template-columns: 216px minmax(0, 1fr);
+    gap: 56px;
+    align-items: start;
+  }
+
+  /* ============ TOC ============ */
+  .toc {
+    position: sticky;
+    top: 28px;
+    padding-top: 48px;
+    font-family: var(--font-display);
+    font-size: 13.5px;
+    line-height: 1.4;
+  }
+  .toc-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 14px;
+  }
+  .toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    counter-reset: toc;
+  }
+  .toc a {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 8px;
+    padding: 6px 8px 6px 0;
+    color: var(--ink-soft);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: color .12s ease;
+  }
+  .toc a:hover { color: var(--accent-ink); }
+  .toc a .n {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+    padding-top: 2px;
+  }
+  .toc a:hover .n { color: var(--accent-ink); }
+
+  /* ============ ARTICLE ============ */
+  article { padding-top: 48px; max-width: 72ch; }
+
+  section { padding-top: 20px; scroll-margin-top: 24px; }
+  section + section { margin-top: 60px; border-top: 1px solid var(--rule); }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: 1.72rem;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1.15;
+    margin: 0 0 6px;
+    text-wrap: balance;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    align-items: baseline;
+  }
+  h2 .sn {
+    font-family: var(--font-mono);
+    font-size: .82rem;
+    font-weight: 400;
+    color: var(--accent-ink);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+  }
+  h3 {
+    font-family: var(--font-display);
+    font-size: 1.06rem;
+    font-weight: 660;
+    letter-spacing: -.006em;
+    margin: 34px 0 10px;
+    color: var(--ink);
+  }
+  .dek {
+    color: var(--ink-soft);
+    font-size: .98rem;
+    margin: 0 0 26px;
+    padding-left: 38px;
+    border-left: 2px solid var(--accent);
+    margin-left: -0px;
+    padding: 2px 0 2px 14px;
+  }
+
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 18px; padding-left: 22px; }
+  li { margin-bottom: 7px; }
+  li::marker { color: var(--ink-faint); }
+  strong { font-weight: 700; color: var(--ink); }
+
+  /* ============ CODE ============ */
+  code {
+    font-family: var(--font-mono);
+    font-size: .855em;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: .13em .38em;
+    border-radius: 3px;
+    border: 1px solid var(--rule);
+  }
+  pre {
+    margin: 0 0 20px;
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--rule-strong);
+    border-radius: 5px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-size: 13.5px;
+    line-height: 1.62;
+  }
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+    color: var(--code-ink);
+    white-space: pre;
+  }
+  pre .c { color: var(--code-comment); font-style: italic; }
+  pre .bad { color: var(--bad); font-style: italic; }
+  pre .good { color: var(--ok); font-style: italic; }
+
+  /* ============ TABLES ============ */
+  .scroll { overflow-x: auto; margin: 0 0 22px; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 420px;
+    font-family: var(--font-display);
+    font-size: 14.5px;
+    line-height: 1.5;
+  }
+  th {
+    text-align: left;
+    font-weight: 640;
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 0 16px 9px 0;
+    border-bottom: 1px solid var(--rule-strong);
+    white-space: nowrap;
+  }
+  td {
+    padding: 11px 16px 11px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    color: var(--ink-soft);
+  }
+  td:first-child { color: var(--ink); font-weight: 560; }
+  td code, th code { font-size: .88em; }
+  tr:last-child td { border-bottom: none; }
+
+  /* ============ CALLOUTS ============ */
+  .note {
+    border-radius: 5px;
+    padding: 15px 18px;
+    margin: 0 0 22px;
+    font-size: .95rem;
+    border: 1px solid var(--rule);
+    background: var(--surface-2);
+  }
+  .note > :last-child { margin-bottom: 0; }
+  .note .tag {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+  }
+  .note.warn  { background: var(--warn-wash); border-color: var(--warn); }
+  .note.warn .tag { color: var(--warn); }
+  .note.danger { background: var(--bad-wash); border-color: var(--bad); }
+  .note.danger .tag { color: var(--bad); }
+  .note.key   { background: var(--accent-wash); border-color: var(--accent); }
+  .note.key .tag { color: var(--accent-ink); }
+
+  /* ============ HEX LAYER BLOCKS ============ */
+  .layers { display: flex; flex-direction: column; gap: 14px; margin: 0 0 24px; }
+  .layer {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--lc, var(--rule-strong));
+    border-radius: 5px;
+    padding: 15px 18px;
+    box-shadow: var(--shadow);
+  }
+  .layer > :last-child { margin-bottom: 0; }
+  .layer h4 {
+    font-family: var(--font-display);
+    font-size: .96rem;
+    font-weight: 660;
+    margin: 0 0 5px;
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+  .layer h4 .path {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 400;
+    color: var(--lc, var(--ink-faint));
+  }
+  .layer p { font-size: .95rem; margin-bottom: 12px; }
+  .l-domain { --lc: var(--domain); }
+  .l-port   { --lc: var(--port); }
+  .l-app    { --lc: var(--accent); }
+  .l-infra  { --lc: var(--infra); }
+
+  /* ============ FLOW DIAGRAM ============ */
+  .flow {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.85;
+    background: var(--surface-2);
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    padding: 18px;
+    overflow-x: auto;
+    margin: 0 0 22px;
+    color: var(--ink-soft);
+    white-space: pre;
+  }
+
+  /* ============ MISTAKE LIST ============ */
+  .mistakes { list-style: none; padding: 0; margin: 0 0 22px; counter-reset: m; }
+  .mistakes li {
+    counter-increment: m;
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--rule);
+    margin: 0;
+    font-size: .96rem;
+  }
+  .mistakes li::before {
+    content: counter(m, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--bad);
+    font-variant-numeric: tabular-nums;
+    padding-top: 4px;
+  }
+  .mistakes li:last-child { border-bottom: none; }
+
+  /* ============ DIAGRAMA INTERACTIVO ============ */
+  figure.dg { margin: 28px 0 26px; }
+
+  .dg-stage {
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: 10px 4px 4px;
+    box-shadow: var(--shadow);
+  }
+  .dg-stage svg { display: block; min-width: 900px; width: 100%; height: auto; }
+
+  /* zonas de fondo */
+  .dg-zone-drive  { fill: var(--accent); opacity: .045; }
+  .dg-zone-driven { fill: var(--infra);  opacity: .05; }
+  .dg-split { stroke: var(--rule-strong); stroke-width: 1.5; stroke-dasharray: 7 7; }
+
+  /* tipografía del svg */
+  .dg-side {
+    font-family: var(--font-display); font-size: 12px; font-weight: 680;
+    letter-spacing: .13em; fill: var(--ink-soft);
+  }
+  .dg-eyebrow {
+    font-family: var(--font-mono); font-size: 8.5px;
+    letter-spacing: .12em; fill: var(--ink-faint);
+  }
+  .dg-title  { font-family: var(--font-display); font-size: 15px; font-weight: 690; fill: var(--ink); }
+  .dg-sub    { font-family: var(--font-body); font-size: 10px; font-style: italic; fill: var(--ink-faint); }
+  .dg-item   { font-family: var(--font-mono); font-size: 10.5px; fill: var(--ink-soft); }
+  .dg-callout{ font-family: var(--font-display); font-size: 10.5px; font-weight: 640; letter-spacing: .06em; fill: var(--ink-soft); }
+  .dg-callout-sub { font-family: var(--font-mono); font-size: 9px; fill: var(--ink-faint); }
+  .dg-path   { font-family: var(--font-mono); font-size: 8.5px; fill: var(--ink-faint); }
+  .dg-edge   { font-family: var(--font-body); font-size: 9.5px; font-style: italic; fill: var(--ink-faint); }
+  .dg-core   { font-family: var(--font-display); font-size: 16px; font-weight: 720; letter-spacing: .04em; fill: var(--ink); }
+  .dg-band   { font-family: var(--font-display); font-size: 11px; font-weight: 660; letter-spacing: .14em; fill: var(--ink-soft); }
+
+  .dg-ok   { fill: var(--ok); }
+  .dg-pend { fill: var(--bad); }
+  .dg-warn { fill: var(--warn); }
+
+  /* líneas y flechas */
+  .dg-lead  { stroke: var(--rule-strong); stroke-width: 1; fill: none; }
+  .dg-arrow { stroke: var(--ink-faint); stroke-width: 1.6; fill: none; }
+  .dg-arrow-fut { stroke: var(--ink-faint); stroke-width: 1.4; fill: none; stroke-dasharray: 5 5; }
+
+  /* nodos interactivos */
+  .dg-node { cursor: pointer; }
+  .dg-node .hit { fill: transparent; }
+  .dg-node .box {
+    fill: var(--surface-2);
+    stroke: var(--rule-strong);
+    stroke-width: 1.4;
+    transition: stroke .14s ease, fill .14s ease;
+  }
+  .dg-node.fut .box { stroke-dasharray: 6 5; fill: none; }
+  .dg-node:hover .box,
+  .dg-node:focus-visible .box { stroke: var(--accent); }
+  .dg-node.on .box { stroke: var(--accent); stroke-width: 2.4; }
+  .dg-node:focus { outline: none; }
+  .dg-node:focus-visible .hit { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .dg-node .hexo { fill: var(--surface-2); stroke: var(--rule-strong); stroke-width: 1.6; transition: stroke .14s ease; }
+  .dg-node .hexi { fill: var(--accent-wash); stroke: var(--accent); stroke-width: 1.6; transition: stroke-width .14s ease; }
+  .dg-node:hover .hexo, .dg-node:focus-visible .hexo { stroke: var(--accent); }
+  .dg-node.on .hexo { stroke: var(--accent); stroke-width: 2.6; }
+  .dg-node.on .hexi { stroke-width: 3; }
+
+  .dg-node .port { fill: var(--ground); stroke: var(--port); stroke-width: 2; transition: stroke .14s ease; }
+  .dg-node:hover .port, .dg-node.on .port { stroke: var(--accent); }
+
+  /* leyenda */
+  .dg-legend { font-family: var(--font-mono); font-size: 9.5px; fill: var(--ink-faint); }
+
+  /* ============ ÁRBOL DE CARPETAS ============ */
+  .tree-legend {
+    display: flex; flex-wrap: wrap; gap: 8px 20px;
+    margin: 0 0 14px;
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--ink-faint);
+  }
+  .tree-legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .tree-legend i {
+    width: 9px; height: 9px; border-radius: 2px;
+    display: inline-block; flex: none;
+  }
+
+  pre.tree {
+    border-left-color: var(--rule-strong);
+    font-size: 12.5px;
+    line-height: 1.72;
+    background: var(--surface);
+  }
+  pre.tree .d   { color: var(--domain);     font-weight: 700; }
+  pre.tree .pt  { color: var(--port);       font-weight: 700; }
+  pre.tree .ap  { color: var(--accent-ink); font-weight: 700; }
+  pre.tree .inf { color: var(--infra);      font-weight: 700; }
+  pre.tree .rem { color: var(--ink-faint); font-style: italic; }
+  pre.tree .y   { color: var(--ok); }
+  pre.tree .n   { color: var(--bad); }
+  pre.tree .w   { color: var(--warn); }
+  pre.tree .hd  { color: var(--ink); font-weight: 700; }
+
+  /* ============ DIAGRAMA DE DEPENDENCIAS ============ */
+  .dep-stage {
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: 12px 6px 6px;
+    box-shadow: var(--shadow);
+  }
+  .dep-stage svg { display: block; min-width: 620px; width: 100%; height: auto; }
+  .dep-box { fill: var(--surface-2); stroke-width: 1.8; }
+  .dep-infra { stroke: var(--infra); }
+  .dep-app   { stroke: var(--accent); }
+  .dep-port  { stroke: var(--port); }
+  .dep-dom   { stroke: var(--domain); }
+  .dep-path  { font-family: var(--font-mono); font-size: 13px; font-weight: 600; fill: var(--ink); }
+  .dep-note  { font-family: var(--font-body); font-size: 10.5px; font-style: italic; fill: var(--ink-faint); }
+  .dep-gutter{ font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .16em; fill: var(--ink-faint); }
+
+  /* panel de detalle */
+  .dg-panel {
+    margin-top: 14px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 18px 20px;
+    min-height: 168px;
+  }
+  .dg-panel .hint {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin: 0;
+    line-height: 1.7;
+  }
+  .dg-panel h4 {
+    font-family: var(--font-display);
+    font-size: 1.08rem; font-weight: 690;
+    margin: 0 0 4px; color: var(--ink);
+  }
+  .dg-panel .role {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--accent-ink); margin: 0 0 12px;
+  }
+  .dg-panel p { font-size: .95rem; margin: 0 0 12px; }
+  .dg-panel p:last-child { margin-bottom: 0; }
+  .dg-panel ul.files { list-style: none; padding: 0; margin: 12px 0 0; }
+  .dg-panel ul.files li {
+    display: grid; grid-template-columns: 62px 1fr; gap: 12px;
+    padding: 7px 0; border-top: 1px solid var(--rule);
+    font-family: var(--font-mono); font-size: 12px;
+    color: var(--ink-soft); margin: 0; align-items: start;
+  }
+  .chip {
+    font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase;
+    padding: 2px 0; text-align: center; border-radius: 3px; border: 1px solid;
+    white-space: nowrap;
+  }
+  .chip.ok   { color: var(--ok);   border-color: var(--ok);   background: var(--ok-wash); }
+  .chip.pend { color: var(--bad);  border-color: var(--bad);  background: var(--bad-wash); }
+  .chip.warn { color: var(--warn); border-color: var(--warn); background: var(--warn-wash); }
+  .dg-panel .files em { color: var(--ink-faint); font-style: normal; font-size: 11px; }
+
+  figcaption {
+    font-size: .88rem; color: var(--ink-faint);
+    margin-top: 12px; font-style: italic; text-align: left;
+  }
+
+  /* ============ FOOTER ============ */
+  footer {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: 1fr; gap: 0; padding: 0 22px 72px; }
+    .toc {
+      position: static;
+      padding-top: 34px;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 22px;
+    }
+    .toc ol { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0 16px; }
+    article { padding-top: 34px; }
+    .masthead-inner { padding: 40px 22px 30px; }
+    body { font-size: 16px; }
+    h2 { grid-template-columns: 1fr; gap: 2px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+  html { scroll-behavior: smooth; }
+</style>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="eyebrow">TicketHexa · Chuleta de referencia</div>
+    <h1>Sintaxis</h1>
+    <p class="standfirst">Todo lo que necesitás saber para lo que <em>ya está construido</em>. Nada de temas futuros. Los ejemplos usan entidades inventadas a propósito: el código real lo escribís vos.</p>
+    <div class="masthead-meta">
+      <span>TypeScript 5 · Next.js 16 · Drizzle 0.45</span>
+      <span>Actualizado 17·08·2026</span>
+      <span>11 secciones + apéndice · v3</span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+
+  <nav class="toc" aria-label="Índice">
+    <div class="toc-label">Índice</div>
+    <ol>
+      <li><a href="#s0"><span class="n">00</span><span>La arquitectura</span></a></li>
+      <li><a href="#s1"><span class="n">01</span><span>Interface vs class</span></a></li>
+      <li><a href="#s2"><span class="n">02</span><span>Clases y validación</span></a></li>
+      <li><a href="#s3"><span class="n">03</span><span>Async y Promise</span></a></li>
+      <li><a href="#s4"><span class="n">04</span><span>Los 4 bloques</span></a></li>
+      <li><a href="#s5"><span class="n">05</span><span>Drizzle ORM</span></a></li>
+      <li><a href="#s6"><span class="n">06</span><span>API Routes</span></a></li>
+      <li><a href="#s7"><span class="n">07</span><span>Códigos HTTP</span></a></li>
+      <li><a href="#s8"><span class="n">08</span><span>Comandos</span></a></li>
+      <li><a href="#s9"><span class="n">09</span><span>Probar la API</span></a></li>
+      <li><a href="#s10"><span class="n">10</span><span>Errores frecuentes</span></a></li>
+      <li><a href="#ap"><span class="n">—</span><span>Diccionario</span></a></li>
+    </ol>
+  </nav>
+
+  <article>
+
+    <!-- ══════════════ 0 ══════════════ -->
+    <section id="s0">
+      <h2><span class="sn">00</span><span>La arquitectura hexagonal</span></h2>
+      <p class="dek">Puertos y adaptadores. Qué problema resuelve, por qué se dibuja así, y cómo se ve en tu proyecto ahora mismo.</p>
+
+      <h3>El problema que viene a resolver</h3>
+      <p>La arquitectura en capas de toda la vida se dibuja como una torta: UI arriba, lógica al medio, base de datos abajo. Las flechas de dependencia apuntan hacia <em>abajo</em> — cada capa usa la de abajo.</p>
+      <p>Suena ordenado, pero tiene una consecuencia incómoda: <strong>tu lógica de negocio termina dependiendo de Postgres.</strong> Para probar una regla tan tonta como «no vender más entradas que la capacidad» necesitás una base de datos levantada. Y el día que quieras cambiar de motor, o de ORM, tenés que meter mano en el código que define tu negocio — que es justo el que menos querés tocar.</p>
+
+      <h3>La idea central: dar vuelta la flecha</h3>
+      <p>La arquitectura hexagonal propone algo simple de decir y difícil de acostumbrarse: <strong>el núcleo no depende de nada; todo depende del núcleo.</strong></p>
+      <p>¿Cómo se logra si el núcleo obviamente <em>necesita</em> guardar cosas? Con un truco de dos partes. El núcleo declara lo que necesita como una <code>interface</code>, y esa interface vive <em>adentro</em> del núcleo. Después, alguien afuera escribe la implementación.</p>
+
+<pre><code><span class="c">// ADENTRO del núcleo: src/core/ports/IEventRepository.ts</span>
+<span class="c">// El dominio dice QUÉ necesita, en su propio idioma.</span>
+export interface IEventRepository {
+  save(event: Event): Promise&lt;void&gt;;
+  findById(id: string): Promise&lt;Event | null&gt;;
+}
+
+<span class="c">// AFUERA: src/infrastructure/repositories/DrizzleEventRepository.ts</span>
+<span class="c">// La infraestructura dice CÓMO, y para eso importa del núcleo.</span>
+<span class="c">//                                     ↓ la flecha apunta hacia adentro</span>
+import { IEventRepository } from '../../core/ports/IEventRepository';
+
+export class DrizzleEventRepository implements IEventRepository { ... }</code></pre>
+
+      <p>Fijate en el detalle: <code>DrizzleEventRepository</code> importa del núcleo. El núcleo <strong>no</strong> importa de Drizzle. La dependencia quedó invertida — de ahí el nombre formal, <em>inversión de dependencias</em>.</p>
+
+      <div class="note key">
+        <span class="tag">La diferencia en una línea</span>
+        <p>En capas: «el negocio usa la base de datos». En hexagonal: «el negocio declara un contrato, y la base de datos se ofrece a cumplirlo».</p>
+      </div>
+
+      <h3>¿Por qué un hexágono?</h3>
+      <p>Por nada en particular — y esto confunde a todo el mundo al principio. No hay seis capas ni seis nada. Alistair Cockburn, que inventó el patrón en 2005, lo dibujó como un polígono para poder mostrar <em>varios lados</em> sin sugerir que hay un «arriba» y un «abajo» como en las capas. Podría ser un pentágono.</p>
+      <p>El nombre técnico del patrón es <strong>Puertos y Adaptadores</strong>, y es mucho más honesto sobre lo que hace.</p>
+
+      <h3>Los dos lados: driving y driven</h3>
+      <p>Todo lo que rodea al hexágono cae en uno de dos grupos, y la pregunta que los separa es <strong>quién empieza la conversación</strong>.</p>
+
+      <div class="scroll">
+        <table>
+          <thead><tr><th></th><th>Lado driving (izquierda)</th><th>Lado driven (derecha)</th></tr></thead>
+          <tbody>
+            <tr><td>También llamado</td><td>Primario, de entrada</td><td>Secundario, de salida</td></tr>
+            <tr><td>¿Quién llama a quién?</td><td>Te llama <strong>a vos</strong></td><td>Vos <strong>lo llamás</strong></td></tr>
+            <tr><td>Qué es</td><td>Quien usa tu aplicación</td><td>Lo que tu aplicación usa</td></tr>
+            <tr><td>Ejemplos</td><td>API Routes, un CLI, tests E2E, una UI</td><td>Base de datos, email, pasarela de pago</td></tr>
+            <tr><td>En TicketHexa</td><td><code>src/app/api/**/route.ts</code></td><td><code>DrizzleEventRepository</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Puerto ≠ adaptador</h3>
+      <p>La metáfora del enchufe es literal y sirve:</p>
+      <ul>
+        <li><strong>Puerto</strong> = la interface. El enchufe en la pared. Define la forma, no el aparato.</li>
+        <li><strong>Adaptador</strong> = la implementación. El aparato que enchufás.</li>
+      </ul>
+      <p>Y lo importante: <strong>un puerto admite muchos adaptadores</strong>. <code>IEventRepository</code> hoy lo cumple Drizzle contra Neon. Mañana lo puede cumplir un repositorio en memoria para tests, o uno contra MongoDB, o uno que devuelva datos falsos para una demo. El núcleo ni se entera de cuál está enchufado — y esa indiferencia es todo el punto del patrón.</p>
+
+      <h3>Cómo saber si lo rompiste</h3>
+      <div class="note warn">
+        <span class="tag">La prueba del import</span>
+        <p>Abrí cualquier archivo dentro de <code>src/core/</code>. Si tiene un <code>import</code> de <code>drizzle-orm</code>, de <code>next/server</code>, o de cualquier cosa dentro de <code>src/infrastructure/</code> — el hexágono está roto. Es literalmente la única regla que hay que vigilar, y se chequea en dos segundos.</p>
+      </div>
+
+      <h3>El diagrama de tu sistema</h3>
+      <p>Este es TicketHexa hoy, no un diagrama genérico. Hacé clic en cualquier pieza para ver qué archivos la componen y qué falta.</p>
+
+      <figure class="dg">
+        <div class="dg-stage">
+          <svg viewBox="0 0 1100 640" role="group" aria-label="Diagrama de la arquitectura hexagonal de TicketHexa: cliente, adaptadores de entrada, puertos, dominio, puertos de salida, adaptadores Drizzle y base de datos">
+            <defs>
+              <marker id="dgA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+              </marker>
+            </defs>
+
+            <!-- zonas de fondo -->
+            <rect class="dg-zone-drive"  x="120" y="60" width="430" height="512" rx="10"/>
+            <rect class="dg-zone-driven" x="550" y="60" width="410" height="512" rx="10"/>
+            <line class="dg-split" x1="550" y1="56" x2="550" y2="576"/>
+
+            <text class="dg-side" x="335" y="44" text-anchor="middle">LADO DE ENTRADA · DRIVING</text>
+            <text class="dg-side" x="755" y="44" text-anchor="middle">LADO DE SALIDA · DRIVEN</text>
+
+            <!-- callouts de puertos -->
+            <path class="dg-lead" d="M268,196 Q300,242 346,278"/>
+            <text class="dg-callout"     x="250" y="168" text-anchor="middle">PUERTO DE ENTRADA</text>
+            <text class="dg-callout-sub" x="250" y="184" text-anchor="middle">la clase del caso de uso</text>
+
+            <path class="dg-lead" d="M834,196 Q800,242 754,278"/>
+            <text class="dg-callout"     x="860" y="168" text-anchor="middle">PUERTOS DE SALIDA</text>
+            <text class="dg-callout-sub" x="860" y="184" text-anchor="middle">IEventRepository · ITicketRepository</text>
+
+            <!-- flechas principales -->
+            <g color="var(--ink-faint)">
+              <line class="dg-arrow" x1="98"  y1="300" x2="150" y2="300" marker-end="url(#dgA)"/>
+              <line class="dg-arrow" x1="314" y1="300" x2="346" y2="300" marker-end="url(#dgA)"/>
+              <line class="dg-arrow" x1="752" y1="300" x2="784" y2="300" marker-end="url(#dgA)"/>
+              <line class="dg-arrow" x1="944" y1="300" x2="969" y2="300" marker-end="url(#dgA)"/>
+              <path class="dg-arrow-fut" d="M312,496 C352,490 348,382 366,326" marker-end="url(#dgA)"/>
+              <path class="dg-arrow-fut" d="M788,496 C748,490 752,382 734,326" marker-end="url(#dgA)"/>
+            </g>
+            <text class="dg-path" x="124" y="290" text-anchor="middle">POST JSON</text>
+            <text class="dg-edge" x="428" y="410" text-anchor="end">mismo contrato</text>
+            <text class="dg-edge" x="672" y="410" text-anchor="start">mismo contrato</text>
+
+            <!-- CLIENTE -->
+            <g class="dg-node" data-n="cliente" tabindex="0" role="button" aria-label="Cliente">
+              <rect class="box" x="14" y="262" width="84" height="76" rx="8"/>
+              <text class="dg-title" font-size="13" x="56" y="296" text-anchor="middle">Cliente</text>
+              <text class="dg-eyebrow" x="56" y="314" text-anchor="middle">CURL · POSTMAN</text>
+            </g>
+
+            <!-- ADAPTADOR DE ENTRADA -->
+            <g class="dg-node" data-n="api" tabindex="0" role="button" aria-label="Adaptador de entrada: API Routes">
+              <rect class="box" x="160" y="238" width="150" height="124" rx="8"/>
+              <text class="dg-eyebrow" x="235" y="259" text-anchor="middle">ADAPTADOR ENTRADA</text>
+              <text class="dg-title"   x="235" y="281" text-anchor="middle">API Routes</text>
+              <text class="dg-sub"     x="235" y="296" text-anchor="middle">HTTP → caso de uso</text>
+              <text class="dg-item" x="177" y="318"><tspan class="dg-ok">✓</tspan> /api/venues</text>
+              <text class="dg-item" x="177" y="334"><tspan class="dg-ok">✓</tspan> /api/events</text>
+              <text class="dg-item" x="177" y="350"><tspan class="dg-pend">✗</tspan> /api/tickets</text>
+            </g>
+
+            <!-- PUERTO DE ENTRADA -->
+            <g class="dg-node" data-n="pentrada" tabindex="0" role="button" aria-label="Puerto de entrada">
+              <rect class="port" x="352" y="282" width="36" height="36" rx="6"/>
+            </g>
+
+            <!-- APLICACIÓN (anillo del hexágono) -->
+            <g class="dg-node" data-n="aplicacion" tabindex="0" role="button" aria-label="Capa de aplicación: casos de uso">
+              <path class="hexo" fill-rule="evenodd"
+                    d="M730,300 L640,144 L460,144 L370,300 L460,456 L640,456 Z
+                       M650,300 L600,213 L500,213 L450,300 L500,387 L600,387 Z"/>
+              <text class="dg-band" x="550" y="171" text-anchor="middle">APLICACIÓN</text>
+              <text class="dg-sub"  x="550" y="189" text-anchor="middle">casos de uso</text>
+              <text class="dg-path" x="550" y="421" text-anchor="middle">core/application/use-cases</text>
+            </g>
+
+            <!-- DOMINIO (núcleo) -->
+            <g class="dg-node" data-n="dominio" tabindex="0" role="button" aria-label="Dominio: el núcleo">
+              <polygon class="hexi" points="650,300 600,213 500,213 450,300 500,387 600,387"/>
+              <text class="dg-core" x="550" y="273" text-anchor="middle">DOMINIO</text>
+              <text class="dg-sub"  x="550" y="290" text-anchor="middle">reglas puras</text>
+              <text class="dg-item" x="550" y="313" text-anchor="middle">Event · Venue · Ticket</text>
+              <text class="dg-path" x="550" y="337" text-anchor="middle">core/domain/entities</text>
+            </g>
+
+            <!-- PUERTO DE SALIDA -->
+            <g class="dg-node" data-n="psalida" tabindex="0" role="button" aria-label="Puertos de salida">
+              <rect class="port" x="712" y="282" width="36" height="36" rx="6"/>
+            </g>
+
+            <!-- ADAPTADOR DE SALIDA -->
+            <g class="dg-node" data-n="drizzle" tabindex="0" role="button" aria-label="Adaptadores de salida: repositorios Drizzle">
+              <rect class="box" x="790" y="238" width="150" height="124" rx="8"/>
+              <text class="dg-eyebrow" x="865" y="259" text-anchor="middle">ADAPTADOR SALIDA</text>
+              <text class="dg-title"   x="865" y="281" text-anchor="middle">Drizzle Repos</text>
+              <text class="dg-sub"     x="865" y="296" text-anchor="middle">objeto ↔ fila SQL</text>
+              <text class="dg-item" x="806" y="318"><tspan class="dg-ok">✓</tspan> VenueRepository</text>
+              <text class="dg-item" x="806" y="334"><tspan class="dg-ok">✓</tspan> EventRepository</text>
+              <text class="dg-item" x="806" y="350"><tspan class="dg-pend">✗</tspan> TicketRepository</text>
+            </g>
+
+            <!-- BASE DE DATOS -->
+            <g class="dg-node" data-n="db" tabindex="0" role="button" aria-label="Base de datos Neon PostgreSQL">
+              <rect class="box" x="975" y="262" width="90" height="76" rx="8"/>
+              <text class="dg-title" font-size="13" x="1020" y="292" text-anchor="middle">Neon</text>
+              <text class="dg-eyebrow" x="1020" y="309" text-anchor="middle">POSTGRESQL</text>
+              <text class="dg-path"    x="1020" y="325" text-anchor="middle">4 tablas</text>
+            </g>
+
+            <!-- FUTURO: driving -->
+            <g class="dg-node fut" data-n="futdrive" tabindex="0" role="button" aria-label="Adaptadores de entrada futuros">
+              <rect class="box" x="160" y="470" width="150" height="88" rx="8"/>
+              <text class="dg-eyebrow dg-warn" x="235" y="493" text-anchor="middle">PENDIENTE</text>
+              <text class="dg-title" font-size="14" x="235" y="515" text-anchor="middle">UI + Playwright</text>
+              <text class="dg-sub"   x="235" y="532" text-anchor="middle">otro adaptador, mismo puerto</text>
+            </g>
+
+            <!-- FUTURO: driven -->
+            <g class="dg-node fut" data-n="futtest" tabindex="0" role="button" aria-label="Repositorios en memoria para tests">
+              <rect class="box" x="790" y="470" width="150" height="88" rx="8"/>
+              <text class="dg-eyebrow dg-warn" x="865" y="493" text-anchor="middle">PENDIENTE</text>
+              <text class="dg-title" font-size="14" x="865" y="515" text-anchor="middle">Repos en memoria</text>
+              <text class="dg-sub"   x="865" y="532" text-anchor="middle">Vitest, sin Postgres</text>
+            </g>
+
+            <!-- LEYENDA -->
+            <g color="var(--ink-faint)">
+              <line class="dg-arrow" x1="160" y1="604" x2="192" y2="604"/>
+              <line class="dg-arrow-fut" x1="330" y1="604" x2="362" y2="604"/>
+            </g>
+            <text class="dg-legend" x="200" y="608">construido</text>
+            <text class="dg-legend" x="370" y="608">pendiente / futuro</text>
+            <text class="dg-legend" x="520" y="608"><tspan class="dg-ok">✓</tspan> existe   <tspan class="dg-pend">✗</tspan> falta</text>
+          </svg>
+        </div>
+
+        <div class="dg-panel" id="dgPanel">
+          <p class="hint">▸ Hacé clic (o tabulá y apretá Enter) sobre cualquier pieza del diagrama para ver qué archivos la componen y en qué estado está.</p>
+        </div>
+
+        <figcaption>Una petición entra por la izquierda y sale por la derecha; el hexágono del centro no conoce a ninguno de los dos extremos. Las cajas punteadas son adaptadores que todavía no existen y que se van a enchufar en los mismos puertos.</figcaption>
+      </figure>
+
+      <h3>La misma idea, en carpetas</h3>
+      <p>El hexágono es una metáfora; esto es lo que ves en el explorador de archivos. Cada anillo del dibujo es una carpeta, y el color acá abajo es el mismo que en el diagrama.</p>
+
+      <div class="tree-legend">
+        <span><i style="background:var(--domain)"></i> dominio</span>
+        <span><i style="background:var(--port)"></i> puertos</span>
+        <span><i style="background:var(--accent)"></i> aplicación</span>
+        <span><i style="background:var(--infra)"></i> adaptadores</span>
+      </div>
+
+<pre class="tree"><code>tickethexa/
+│
+├── src/
+│   │
+│   ├── <span class="hd">core/</span>                                     <span class="rem">EL HEXÁGONO · no importa nada de afuera</span>
+│   │   │
+│   │   ├── <span class="d">domain/entities/</span>                   <span class="rem">reglas de negocio puras</span>
+│   │   │   ├── Event.ts                       <span class="y">✓</span>  <span class="rem">valida capacidad y vende</span>
+│   │   │   ├── Venue.ts                       <span class="y">✓</span>
+│   │   │   └── Tickets.ts                     <span class="y">✓</span>  <span class="rem">archivo plural, clase singular</span>
+│   │   │
+│   │   ├── <span class="pt">ports/</span>                             <span class="rem">los contratos que el núcleo declara</span>
+│   │   │   ├── IEventRepository.ts            <span class="y">✓</span>  <span class="rem">save · findById · findAll · update</span>
+│   │   │   ├── IVenueRepository.ts            <span class="y">✓</span>  <span class="rem">save · findById · findAll</span>
+│   │   │   └── ITicketRepository.ts           <span class="y">✓</span>  <span class="rem">solo save()</span>
+│   │   │
+│   │   └── <span class="ap">application/use-cases/</span>             <span class="rem">orquestadores, sin reglas ni SQL</span>
+│   │       ├── CreateVenueUseCase.ts          <span class="y">✓</span>
+│   │       ├── CreateEventUseCase.ts          <span class="y">✓</span>
+│   │       └── CreateTicketUseCase.ts         <span class="w">!</span>  <span class="rem">huérfano: nadie lo puede llamar</span>
+│   │
+│   ├── <span class="inf">infrastructure/</span>                       <span class="rem">ADAPTADORES DE SALIDA · driven</span>
+│   │   ├── db/
+│   │   │   ├── schema.ts                      <span class="y">✓</span>  <span class="rem">tablas Drizzle</span>
+│   │   │   └── index.ts                       <span class="y">✓</span>  <span class="rem">cliente Neon</span>
+│   │   └── repositories/
+│   │       ├── DrizzelVenueRepository.ts      <span class="y">✓</span>
+│   │       ├── DrizzelEventRepository.ts      <span class="y">✓</span>
+│   │       └── DrizzleTicketRepository.ts     <span class="n">✗</span>  <span class="rem">falta — bloquea la compra</span>
+│   │
+│   └── <span class="inf">app/</span>                                  <span class="rem">ADAPTADORES DE ENTRADA · driving</span>
+│       └── api/
+│           ├── venues/route.ts                <span class="y">✓</span>  <span class="rem">POST + GET</span>
+│           ├── venues/[id]/route.ts           <span class="y">✓</span>  <span class="rem">GET</span>
+│           ├── events/route.ts                <span class="y">✓</span>  <span class="rem">POST + GET</span>
+│           ├── events/[id]/route.ts           <span class="y">✓</span>  <span class="rem">GET</span>
+│           └── tickets/route.ts               <span class="n">✗</span>  <span class="rem">falta</span>
+│
+├── tests/                                     <span class="n">✗</span>  <span class="rem">futuro</span>
+│   ├── unit/                                     <span class="rem">entidades, sin base de datos</span>
+│   └── integration/                              <span class="rem">repos contra Postgres en Docker</span>
+│
+├── docker-compose.yml                         <span class="n">✗</span>  <span class="rem">futuro · Postgres local</span>
+├── drizzle.config.ts                          <span class="y">✓</span>
+└── package.json                               <span class="y">✓</span></code></pre>
+
+      <p>Fijate en un detalle que no es casualidad: <strong><code>ports/</code> vive dentro de <code>core/</code>, no dentro de <code>infrastructure/</code>.</strong> Uno esperaría que el contrato del repositorio esté cerca de la base de datos, pero justamente ahí está el truco del patrón. Si movés esa carpeta a infraestructura, el núcleo pasa a depender de afuera y el hexágono se desarma.</p>
+
+      <h3>Hacia dónde pueden apuntar los imports</h3>
+
+      <figure class="dg">
+        <div class="dep-stage">
+          <svg viewBox="0 0 720 400" role="img" aria-label="Diagrama de dependencias: los imports van desde los adaptadores hacia la aplicación, de ahí a los puertos y finalmente al dominio, que no importa nada">
+            <defs>
+              <marker id="depA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+              </marker>
+            </defs>
+
+            <g color="var(--ink-faint)">
+              <line x1="44" y1="34" x2="44" y2="356" stroke="currentColor" stroke-width="1.6" marker-end="url(#depA)"/>
+              <line x1="235" y1="86" x2="235" y2="116" stroke="currentColor" stroke-width="1.4" marker-end="url(#depA)"/>
+              <line x1="553" y1="86" x2="553" y2="116" stroke="currentColor" stroke-width="1.4" marker-end="url(#depA)"/>
+              <line x1="394" y1="182" x2="394" y2="212" stroke="currentColor" stroke-width="1.4" marker-end="url(#depA)"/>
+              <line x1="394" y1="278" x2="394" y2="308" stroke="currentColor" stroke-width="1.4" marker-end="url(#depA)"/>
+            </g>
+            <text class="dep-gutter" transform="rotate(-90 28 195)" x="28" y="195" text-anchor="middle">LOS IMPORTS SOLO BAJAN</text>
+
+            <rect class="dep-box dep-infra" x="88"  y="24" width="294" height="60" rx="7"/>
+            <text class="dep-path" x="104" y="49">app/api/**</text>
+            <text class="dep-note" x="104" y="67">adaptadores de entrada · driving</text>
+
+            <rect class="dep-box dep-infra" x="406" y="24" width="294" height="60" rx="7"/>
+            <text class="dep-path" x="422" y="49">infrastructure/</text>
+            <text class="dep-note" x="422" y="67">adaptadores de salida · driven</text>
+
+            <rect class="dep-box dep-app" x="88" y="120" width="612" height="60" rx="7"/>
+            <text class="dep-path" x="104" y="145">core/application/use-cases/</text>
+            <text class="dep-note" x="104" y="163">coordina el flujo; no tiene reglas de negocio ni SQL</text>
+
+            <rect class="dep-box dep-port" x="88" y="216" width="612" height="60" rx="7"/>
+            <text class="dep-path" x="104" y="241">core/ports/</text>
+            <text class="dep-note" x="104" y="259">las interfaces que el núcleo declara para pedir cosas afuera</text>
+
+            <rect class="dep-box dep-dom" x="88" y="312" width="612" height="60" rx="7"/>
+            <text class="dep-path" x="104" y="337">core/domain/entities/</text>
+            <text class="dep-note" x="104" y="355">no importa NADA — ni una librería, ni otra capa</text>
+          </svg>
+        </div>
+        <figcaption>Algunas flechas saltan niveles: <code>infrastructure/</code> importa directo de <code>core/domain</code> para mapear filas a entidades. Lo que nunca puede pasar es que una flecha suba.</figcaption>
+      </figure>
+
+      <div class="note key">
+        <span class="tag">Cómo se chequea en dos segundos</span>
+        <p>Buscá <code>import</code> en toda la carpeta <code>src/core/</code>. Si todos los resultados apuntan a otro archivo de <code>src/core/</code>, está sano. Cualquier <code>drizzle-orm</code>, <code>next/server</code> o <code>../../infrastructure</code> que aparezca ahí es una flecha que subió.</p>
+      </div>
+
+      <h3>Lo que ganás, en concreto</h3>
+      <ol>
+        <li><strong>Testeás el negocio sin infraestructura.</strong> Para probar que <code>CreateTicketUseCase</code> no sobrevende, le pasás un repositorio falso en memoria. Cero Docker, cero Postgres, milisegundos en vez de segundos. Esto es <em>la</em> razón práctica por la que vale la pena.</li>
+        <li><strong>Postergás decisiones.</strong> Podés escribir todo el dominio antes de haber elegido base de datos. La elección de Neon es un detalle enchufado en la punta derecha, no un cimiento.</li>
+        <li><strong>El negocio se lee en un solo lugar.</strong> ¿Cuáles son las reglas de TicketHexa? Están en tres archivos de <code>core/domain/entities</code>, sin una línea de SQL ni de HTTP alrededor.</li>
+      </ol>
+
+      <h3>Lo que te cuesta</h3>
+      <p>Seamos honestas: son más archivos y más rebote. Un <code>POST</code> que en Express serían 15 líneas acá pasa por una ruta, un DTO, un caso de uso, una entidad, un puerto y un adaptador. Para un CRUD de tres tablas sin reglas es sobre-ingeniería declarada.</p>
+      <p>Se paga solo cuando hay reglas de verdad — y «no vender más entradas que la capacidad, incluso con dos personas comprando al mismo tiempo» es exactamente ese tipo de regla. Ese es el motivo por el que TicketHexa es un buen caso para aprender el patrón: tiene una regla que justifica la ceremonia.</p>
+
+      <h3>El recorrido completo de una petición</h3>
+      <p>Así viaja hoy un <code>POST /api/events</code>, capa por capa:</p>
+      <div class="flow">1. Cliente        POST /api/events con un JSON
+2. Ruta           route.ts lee el body, arma el DTO
+3. Cableado       new DrizzleEventRepository() → new CreateEventUseCase(repo)
+4. Caso de uso    execute(dto) coordina el flujo
+5. Entidad        new Event(...) valida — si algo está mal, lanza acá
+6. Puerto         repo.save(event)   ← el núcleo habla en su idioma
+7. Adaptador      db.insert(eventsTable).values(...)  ← recién acá aparece SQL
+8. Postgres       INSERT
+9. Vuelta         Event → NextResponse.json(..., { status: 201 })</div>
+      <p>Los pasos 1 a 4 y el 9 son intercambiables sin tocar el 5. El paso 7 es intercambiable sin tocar el 6. Eso es el hexágono funcionando.</p>
+
+      <div class="note">
+        <span class="tag" style="color:var(--ink-faint)">Seguí por acá</span>
+        <p>La sección <a href="#s4">04 · Los 4 bloques</a> baja todo esto a la sintaxis concreta de cada capa.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════ 1 ══════════════ -->
+    <section id="s1">
+      <h2><span class="sn">01</span><span>TypeScript: interface vs class</span></h2>
+      <p class="dek">La confusión número uno al empezar. Son cosas distintas.</p>
+
+      <div class="scroll">
+        <table>
+          <thead><tr><th></th><th>interface</th><th>class</th></tr></thead>
+          <tbody>
+            <tr><td>¿Qué es?</td><td>Una <strong>forma</strong>, un contrato</td><td>Un <strong>plano</strong> que fabrica objetos</td></tr>
+            <tr><td>¿Existe en runtime?</td><td>No — desaparece al compilar</td><td>Sí — es código JavaScript real</td></tr>
+            <tr><td>¿Tiene lógica?</td><td>Nunca</td><td>Sí, métodos y validaciones</td></tr>
+            <tr><td>¿Se instancia?</td><td>No</td><td>Sí, con <code>new</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+<pre><code><span class="c">// INTERFACE: solo describe la forma de los datos. No hace nada.</span>
+interface LibroProps {
+  id: string;
+  titulo: string;
+  paginas: number;
+}
+
+<span class="c">// CLASS: tiene comportamiento y protege sus reglas.</span>
+class Libro {
+  constructor(props: LibroProps) { <span class="c">/* ... */</span> }
+}</code></pre>
+
+      <p>En el proyecto usás <code>interface</code> para tres cosas distintas:</p>
+      <ul>
+        <li><code>XProps</code> — forma de los datos que entran al constructor de una entidad.</li>
+        <li><code>XDTO</code> — forma de los datos que llegan desde internet a un caso de uso.</li>
+        <li><code>IXRepository</code> — contrato de un puerto.</li>
+      </ul>
+
+      <h3>El signo <code>?</code> (opcional)</h3>
+<pre><code>interface LibroProps {
+  id?: string;       <span class="c">// puede venir o no → tipo real: string | undefined</span>
+  titulo: string;    <span class="c">// obligatorio</span>
+}</code></pre>
+
+      <div class="note warn">
+        <span class="tag">Trampa — aplica a tu Ticket</span>
+        <p>El <code>?</code> en <code>Props</code> significa «el que me llama puede no mandarlo». Pero si el constructor <strong>siempre</strong> le asigna un valor, entonces la propiedad de la <em>clase</em> ya no es opcional. Son dos declaraciones separadas y no tienen por qué coincidir.</p>
+      </div>
+
+<pre><code>interface LibroProps {
+  id?: string;                     <span class="c">// opcional al construir</span>
+}
+
+class Libro {
+  public readonly id: string;      <span class="good">// SIEMPRE existe después de construir ✅</span>
+
+  constructor(props: LibroProps) {
+    this.id = props.id ?? crypto.randomUUID();
+  }
+}</code></pre>
+
+      <h3>Operadores <code>??</code> vs <code>||</code></h3>
+<pre><code>valor ?? porDefecto   <span class="c">// usa porDefecto solo si valor es null o undefined</span>
+valor || porDefecto   <span class="c">// usa porDefecto si valor es CUALQUIER falsy:</span>
+                      <span class="c">// 0, "", false, null, undefined</span></code></pre>
+      <p>Con <code>0</code> la diferencia importa: <code>0 || 10</code> da <code>10</code> (probablemente no era la idea), <code>0 ?? 10</code> da <code>0</code>.</p>
+
+      <h3>Union types <span style="color:var(--ink-faint);font-weight:400">— todavía no lo usás, deberías</span></h3>
+      <p>Restringe un <code>string</code> a un conjunto cerrado de valores:</p>
+<pre><code>type EstadoPedido = 'pendiente' | 'enviado' | 'entregado';
+
+let e: EstadoPedido = 'pendiente';  <span class="good">// ✅</span>
+let f: EstadoPedido = 'volando';    <span class="bad">// ❌ error en tiempo de compilación</span></code></pre>
+      <p>Con <code>status: string</code> el compilador acepta cualquier cosa. Con un union type, el error salta antes de ejecutar.</p>
+
+      <h3><code>type</code> vs <code>interface</code></h3>
+      <p>Prácticamente intercambiables para describir objetos. Convención razonable: <code>interface</code> para formas de objetos, <code>type</code> para uniones y alias.</p>
+    </section>
+
+    <!-- ══════════════ 2 ══════════════ -->
+    <section id="s2">
+      <h2><span class="sn">02</span><span>Clases: constructor, <code style="font-size:.75em">this</code>, modificadores</span></h2>
+      <p class="dek">El plano que fabrica objetos válidos, o no fabrica nada.</p>
+
+<pre><code>export class Libro {
+  <span class="c">//  ┌── modificador de acceso</span>
+  <span class="c">//  │      ┌── inmutable tras el constructor</span>
+  public readonly id: string;
+  public titulo: string;
+  private codigoInterno: string;   <span class="c">// solo accesible dentro de la clase</span>
+
+  constructor(props: LibroProps) {
+    this.validate(props);          <span class="c">// primero valida, después asigna</span>
+    this.id = props.id;
+    this.titulo = props.titulo;
+  }
+
+  <span class="c">// MÉTODO PÚBLICO: comportamiento del dominio (camelCase)</span>
+  public renombrar(nuevoTitulo: string): void {
+    if (nuevoTitulo.trim().length &lt; 3) {
+      throw new Error("Título muy corto");
+    }
+    this.titulo = nuevoTitulo;
+  }
+
+  <span class="c">// MÉTODO PRIVADO: reglas internas, nadie de afuera lo llama</span>
+  private validate(props: LibroProps): void {
+    if (!props.titulo || props.titulo.trim() === '') {
+      throw new Error("El título no puede estar vacío");
+    }
+  }
+}</code></pre>
+
+      <h3>Reglas de nombres</h3>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Elemento</th><th>Convención</th><th>Ejemplo</th></tr></thead>
+          <tbody>
+            <tr><td>Clase</td><td>PascalCase</td><td><code>Event</code>, <code>CreateVenueUseCase</code></td></tr>
+            <tr><td>Método</td><td>camelCase</td><td><code>sellTicket()</code>, <code>findById()</code></td></tr>
+            <tr><td>Propiedad</td><td>camelCase</td><td><code>venueId</code>, <code>standardCapacity</code></td></tr>
+            <tr><td>Interface de puerto</td><td><code>I</code> + PascalCase</td><td><code>IEventRepository</code></td></tr>
+            <tr><td>Archivo de entidad</td><td>PascalCase singular</td><td><code>Ticket.ts</code>, no <code>Tickets.ts</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Atajo: parámetros de constructor como propiedades</h3>
+      <p>Esto es TypeScript puro y ya lo usás en los casos de uso:</p>
+<pre><code><span class="c">// Forma larga</span>
+class CrearLibro {
+  private readonly repo: ILibroRepository;
+  constructor(repo: ILibroRepository) {
+    this.repo = repo;
+  }
+}
+
+<span class="c">// Forma corta — idéntica.</span>
+<span class="c">// El modificador en el parámetro crea y asigna la propiedad.</span>
+class CrearLibro {
+  constructor(private readonly repo: ILibroRepository) {}
+}</code></pre>
+
+      <h3><code>implements</code>: firmar un contrato</h3>
+<pre><code>export class DrizzleLibroRepository implements ILibroRepository {
+  <span class="c">// Si falta un método del contrato, o cambia una firma,</span>
+  <span class="c">// TypeScript da error ACÁ, no en tiempo de ejecución.</span>
+  <span class="c">// Esa es la ganancia.</span>
+}</code></pre>
+
+      <h3>Validar en el constructor (invariante)</h3>
+      <p>El principio central de las <strong>entidades ricas</strong>: si el objeto existe, es válido. No puede haber un <code>Libro</code> a medio construir dando vueltas, porque el constructor lanza antes de terminar.</p>
+<pre><code>const libro = new Libro({ titulo: "" });  <span class="bad">// 💥 throw, el objeto nunca nace</span></code></pre>
+
+      <div class="note key">
+        <span class="tag">Distinción clave para tu Event</span>
+        <p>Hay dos momentos de vida distintos y no comparten reglas.</p>
+      </div>
+
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Momento</th><th>Qué pasa</th><th>¿Vale «fecha futura»?</th></tr></thead>
+          <tbody>
+            <tr><td>Creación</td><td>El usuario manda datos nuevos</td><td style="color:var(--ok)">Sí</td></tr>
+            <tr><td>Reconstitución</td><td>Traés una fila de la BD y la volvés objeto</td><td style="color:var(--bad)"><strong>No</strong> — el evento del año pasado existió</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Si la regla de creación vive en el constructor, la reconstitución de datos viejos revienta. Patrón habitual para separarlas: el <code>constructor</code> valida solo lo estructural, y un método estático <code>static create(...)</code> agrega las reglas de creación.</p>
+
+<pre><code>class Libro {
+  private constructor(props: LibroProps) { <span class="c">/* validación estructural */</span> }
+
+  static create(props: LibroProps): Libro {   <span class="c">// camino "nuevo"</span>
+    <span class="c">// reglas que solo aplican a lo recién creado</span>
+    return new Libro(props);
+  }
+
+  static fromDB(props: LibroProps): Libro {   <span class="c">// camino "rehidratar"</span>
+    return new Libro(props);
+  }
+}</code></pre>
+
+      <h3>Guards de validación: cuidado con la lógica booleana</h3>
+<pre><code><span class="bad">// ❌ Nunca lanza si el valor es "": "" es falsy,</span>
+<span class="bad">//    el && corta y nunca llega al trim</span>
+if (props.campo && props.campo.trim() === '') throw new Error("vacío");
+
+<span class="good">// ✅ Lanza si falta O si es solo espacios</span>
+if (!props.campo || props.campo.trim() === '') throw new Error("vacío");
+
+<span class="good">// ✅ Versión compacta con optional chaining</span>
+if (!props.campo?.trim()) throw new Error("vacío");</code></pre>
+
+      <div class="note">
+        <span class="tag" style="color:var(--ink-faint)">Memorizar</span>
+        <p><strong>Valores falsy en JS:</strong> <code>false</code>, <code>0</code>, <code>-0</code>, <code>""</code>, <code>null</code>, <code>undefined</code>, <code>NaN</code>. Todo lo demás es truthy — incluidos <code>[]</code> y <code>{}</code>.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════ 3 ══════════════ -->
+    <section id="s3">
+      <h2><span class="sn">03</span><span>Async / await y <code style="font-size:.75em">Promise&lt;T&gt;</code></span></h2>
+      <p class="dek">Todo lo que toca la base de datos es asíncrono: se pide algo y la respuesta llega después.</p>
+
+<pre><code><span class="c">// Promise&lt;T&gt; = "prometo devolverte un T más adelante"</span>
+async findById(id: string): Promise&lt;Libro | null&gt; {
+  const filas = await db.select().from(librosTable);  <span class="c">// await = "esperá acá"</span>
+  <span class="c">//            ^^^^^ sin await, filas sería una Promise, no los datos</span>
+  return null;
+}</code></pre>
+
+      <p>Reglas:</p>
+      <ul>
+        <li>Si una función tiene <code>await</code> adentro, tiene que ser <code>async</code>.</li>
+        <li>Una función <code>async</code> <strong>siempre</strong> devuelve una Promise, aunque escribas <code>return 5</code>.</li>
+        <li>Para consumir una función async: <code>const x = await miFuncion();</code></li>
+      </ul>
+
+      <div class="note danger">
+        <span class="tag">El bug más común</span>
+        <p>Olvidar el <code>await</code>.</p>
+      </div>
+
+<pre><code>const evento = this.repo.findById(id);   <span class="bad">// ❌ evento es una Promise</span>
+if (!evento) { }                         <span class="bad">// nunca entra: una Promise siempre es truthy</span>
+
+const evento = await this.repo.findById(id);  <span class="good">// ✅</span></code></pre>
+
+      <h3>try / catch</h3>
+<pre><code>try {
+  const resultado = await algoQuePuedeFallar();
+} catch (error: any) {
+  <span class="c">// Cae acá cualquier throw de adentro del try,</span>
+  <span class="c">// sin importar cuán profundo esté</span>
+  console.error(error.message);
+}</code></pre>
+
+      <p>Un <code>throw</code> de tu entidad viaja hacia arriba: entidad → caso de uso → route handler, hasta el primer <code>catch</code>. Por eso las rutas API envuelven todo en <code>try/catch</code>: son la última barrera antes de que el servidor devuelva un 500 feo.</p>
+    </section>
+
+    <!-- ══════════════ 4 ══════════════ -->
+    <section id="s4">
+      <h2><span class="sn">04</span><span>Los 4 bloques del hexágono</span></h2>
+      <p class="dek">El flujo, siempre en este orden.</p>
+
+      <div class="flow">Cliente → API Route → Caso de Uso → Entidad (reglas)
+                            ↓
+                          Puerto (interface)
+                            ↓
+                       Repositorio Drizzle → PostgreSQL</div>
+
+      <div class="note key">
+        <span class="tag">La regla de dependencias</span>
+        <p>Las flechas de <code>import</code> apuntan hacia adentro. <code>infrastructure</code> importa de <code>core</code>. <code>core</code> <strong>nunca</strong> importa de <code>infrastructure</code>. Si en un archivo de <code>core/</code> aparece un <code>import</code> de Drizzle o de Next, el hexágono está roto.</p>
+      </div>
+
+      <div class="layers">
+
+        <div class="layer l-domain">
+          <h4>A · Entidad <span class="path">src/core/domain/entities/</span></h4>
+          <p>Reglas de negocio puras. Cero imports externos. Sabe decir «no» cuando le piden algo inválido.</p>
+        </div>
+
+        <div class="layer l-port">
+          <h4>B · Puerto <span class="path">src/core/ports/</span></h4>
+          <p>Una <code>interface</code> que declara <strong>qué</strong> se puede hacer, sin decir <strong>cómo</strong>.</p>
+<pre><code>import { Libro } from '../domain/entities/Libro';
+
+export interface ILibroRepository {
+  save(libro: Libro): Promise&lt;void&gt;;
+  findById(id: string): Promise&lt;Libro | null&gt;;
+  findAll(): Promise&lt;Libro[]&gt;;
+}</code></pre>
+          <p>Fijate que el puerto habla en <strong>objetos de dominio</strong> (<code>Libro</code>), no en filas de SQL. Ahí está el aislamiento.</p>
+        </div>
+
+        <div class="layer l-app">
+          <h4>C · Caso de uso <span class="path">src/core/application/use-cases/</span></h4>
+          <p>Coordina. No tiene reglas de negocio (eso es de la entidad) ni SQL (eso es del repositorio).</p>
+<pre><code>export interface CrearLibroDTO {   <span class="c">// lo que llega de afuera</span>
+  titulo: string;
+  paginas: number;
+}
+
+export class CrearLibroUseCase {
+  constructor(private readonly repo: ILibroRepository) {}
+  <span class="c">//                                  ^^^^^^^^^^^^^^^^</span>
+  <span class="c">//   pide la INTERFACE, no la clase concreta. Esto es la inyección</span>
+  <span class="c">//   de dependencias: en tests le pasás un repo falso en memoria</span>
+  <span class="c">//   y probás la lógica sin levantar Postgres.</span>
+
+  async execute(data: CrearLibroDTO): Promise&lt;Libro&gt; {
+    const libro = new Libro({ id: crypto.randomUUID(), ...data });
+    await this.repo.save(libro);
+    return libro;
+  }
+}</code></pre>
+          <p><strong>¿Por qué un DTO y no pasar el <code>body</code> crudo?</strong> El DTO es un filtro: define exactamente qué campos entran. Si el cliente manda <code>{ titulo: "x", esAdmin: true }</code>, <code>esAdmin</code> se descarta porque no está en el DTO. Es una frontera de seguridad, no burocracia.</p>
+        </div>
+
+        <div class="layer l-infra">
+          <h4>D · Adaptador <span class="path">src/infrastructure/repositories/</span></h4>
+          <p>Firma el contrato y traduce entre el mundo de objetos y el mundo de tablas.</p>
+<pre><code>export class DrizzleLibroRepository implements ILibroRepository {
+  async findById(id: string): Promise&lt;Libro | null&gt; {
+    const filas = await db.select()
+      .from(librosTable)
+      .where(eq(librosTable.id, id));
+
+    if (filas.length === 0) return null;
+
+    <span class="c">// MAPEO: fila plana de SQL → objeto rico de dominio</span>
+    return new Libro({
+      id: filas[0].id,
+      titulo: filas[0].titulo,
+    });
+  }
+}</code></pre>
+          <p>Ese mapeo es el corazón del patrón. Nunca dejes escapar una fila cruda de Drizzle fuera de <code>infrastructure/</code>.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════════ 5 ══════════════ -->
+    <section id="s5">
+      <h2><span class="sn">05</span><span>Drizzle ORM</span></h2>
+      <p class="dek">Definir tablas, consultar, y no borrar la base por accidente.</p>
+
+      <h3>Definir tablas — <code>src/infrastructure/db/schema.ts</code></h3>
+<pre><code>import { pgTable, uuid, varchar, timestamp, integer } from 'drizzle-orm/pg-core';
+
+export const librosTable = pgTable('libros', {
+  <span class="c">//                                 ^^^^^^ nombre real de la tabla en Postgres</span>
+  id: uuid('id').defaultRandom().primaryKey(),
+  titulo: varchar('titulo', { length: 255 }).notNull(),
+  paginas: integer('paginas').notNull(),
+  estado: varchar('estado', { length: 50 }).notNull().default('disponible'),
+  creadoEn: timestamp('created_at').defaultNow().notNull(),
+  <span class="c">//                   ^^^^^^^^^^ columna en snake_case, propiedad en camelCase</span>
+  autorId: uuid('autor_id').notNull().references(() =&gt; autoresTable.id),
+});</code></pre>
+
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Modificador</th><th>Qué hace</th></tr></thead>
+          <tbody>
+            <tr><td><code>.primaryKey()</code></td><td>Clave primaria</td></tr>
+            <tr><td><code>.notNull()</code></td><td>Prohíbe NULL</td></tr>
+            <tr><td><code>.unique()</code></td><td>Sin duplicados</td></tr>
+            <tr><td><code>.defaultRandom()</code></td><td>UUID automático (solo en <code>uuid</code>)</td></tr>
+            <tr><td><code>.defaultNow()</code></td><td>Timestamp actual (solo en <code>timestamp</code>)</td></tr>
+            <tr><td><code>.default(x)</code></td><td>Valor por defecto</td></tr>
+            <tr><td><code>.references(() =&gt; tabla.columna)</code></td><td>Foreign key</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note warn">
+        <span class="tag">Foreign keys y el orden de inserción</span>
+        <p>Si <code>orders.userId</code> referencia <code>users.id</code>, Postgres <strong>rechaza</strong> cualquier inserción con un <code>userId</code> que no exista en <code>users</code>. No importa que tu entidad esté perfectamente validada: la BD tiene la última palabra. Para insertar un ticket primero tiene que existir el usuario.</p>
+      </div>
+
+      <p><code>{ mode: 'date' }</code> en un <code>timestamp</code> le dice a Drizzle que te devuelva un objeto <code>Date</code> de JavaScript en vez de un string.</p>
+
+      <h3>Consultas</h3>
+<pre><code>import { eq, and, gt } from 'drizzle-orm';
+
+<span class="c">// SELECT * FROM libros</span>
+const todos = await db.select().from(librosTable);
+<span class="c">// → devuelve SIEMPRE un array, aunque esté vacío</span>
+
+<span class="c">// SELECT * FROM libros WHERE id = ?</span>
+const uno = await db.select().from(librosTable).where(eq(librosTable.id, id));
+<span class="c">// → TAMBIÉN un array, aunque traiga un solo elemento.</span>
+<span class="c">//   Por eso el patrón: if (uno.length === 0) return null; luego uno[0]</span>
+
+<span class="c">// INSERT</span>
+await db.insert(librosTable).values({ id, titulo, paginas });
+
+<span class="c">// INSERT devolviendo la fila creada</span>
+const [creado] = await db.insert(librosTable).values({...}).returning();
+
+<span class="c">// UPDATE ... WHERE  ← ¡el .where() no es opcional en la práctica!</span>
+await db.update(librosTable)
+  .set({ titulo: 'nuevo' })
+  .where(eq(librosTable.id, id));
+
+<span class="c">// DELETE</span>
+await db.delete(librosTable).where(eq(librosTable.id, id));
+
+<span class="c">// Condiciones compuestas</span>
+.where(and(eq(librosTable.estado, 'disponible'), gt(librosTable.paginas, 100)))</code></pre>
+
+      <div class="note danger">
+        <span class="tag">Peligro</span>
+        <p>Un <code>update</code> o <code>delete</code> sin <code>.where()</code> afecta <strong>todas</strong> las filas de la tabla. Drizzle no te va a detener.</p>
+      </div>
+
+      <p>Operadores frecuentes: <code>eq</code> (=), <code>ne</code> (≠), <code>gt</code>&nbsp;/&nbsp;<code>gte</code> (&gt;&nbsp;/&nbsp;≥), <code>lt</code>&nbsp;/&nbsp;<code>lte</code> (&lt;&nbsp;/&nbsp;≤), <code>inArray</code>, <code>isNull</code>, <code>like</code>, y los combinadores <code>and</code>&nbsp;/&nbsp;<code>or</code>&nbsp;/&nbsp;<code>not</code>.</p>
+
+      <h3>Tipos inferidos</h3>
+<pre><code>export type LibroRecord = typeof librosTable.$inferSelect;    <span class="c">// forma al leer</span>
+export type NewLibroRecord = typeof librosTable.$inferInsert; <span class="c">// forma al insertar</span></code></pre>
+      <p>Si cambiás una columna del schema, estos tipos cambian solos y TypeScript te marca todos los lugares que hay que ajustar.</p>
+
+      <h3>Comandos de drizzle-kit</h3>
+<pre><code>npx drizzle-kit push      <span class="c"># aplica el schema directo a la BD (desarrollo)</span>
+npx drizzle-kit generate  <span class="c"># genera archivos .sql de migración (producción)</span>
+npx drizzle-kit migrate   <span class="c"># aplica las migraciones generadas</span>
+npx drizzle-kit studio    <span class="c"># GUI para ver/editar la BD en el navegador</span></code></pre>
+      <p>En desarrollo <code>push</code> alcanza. En producción se usa <code>generate</code> + <code>migrate</code> porque deja historial versionado de los cambios.</p>
+    </section>
+
+    <!-- ══════════════ 6 ══════════════ -->
+    <section id="s6">
+      <h2><span class="sn">06</span><span>Next.js App Router: API Routes</span></h2>
+      <p class="dek">El adaptador de entrada: donde el HTTP se convierte en llamadas al hexágono.</p>
+
+      <h3>La regla de los nombres</h3>
+      <p>En App Router <strong>la carpeta es la URL</strong> y el archivo se llama siempre <code>route.ts</code>:</p>
+<pre><code>src/app/api/venues/route.ts        →  /api/venues
+src/app/api/venues/[id]/route.ts   →  /api/venues/cualquier-cosa
+src/app/api/tickets/route.ts       →  /api/tickets</code></pre>
+      <p><code>route.ts</code> en singular. <code>routes.ts</code> no lo detecta el framework y la ruta simplemente devuelve 404.</p>
+
+      <h3>Handlers = verbos HTTP exportados</h3>
+      <p>Exportás una función <code>async</code> con el nombre del verbo, en MAYÚSCULAS:</p>
+<pre><code>import { NextResponse } from 'next/server';
+
+export async function GET() { }
+export async function POST(request: Request) { }
+export async function PUT(request: Request) { }
+export async function DELETE(request: Request) { }</code></pre>
+
+      <h3>Leer el body</h3>
+<pre><code>const body = await request.json();   <span class="c">// async: hay que esperar a que llegue el cuerpo</span></code></pre>
+
+      <div class="note warn">
+        <span class="tag">Ojo</span>
+        <p><code>body</code> es <strong><code>any</code></strong>. Todo lo que venga de internet es texto sin garantías: <code>body.paginas</code> puede ser <code>"muchas"</code>, <code>null</code> o no venir. Hoy tu única defensa es la validación de la entidad — funciona, pero el error salta más adentro de lo ideal.</p>
+      </div>
+
+      <h3>Parámetros dinámicos <code>[id]</code></h3>
+      <p>En Next 15+ <code>params</code> es una <strong>Promise</strong> y hay que esperarla:</p>
+<pre><code>export async function GET(
+  request: Request,
+  { params }: { params: Promise&lt;{ id: string }&gt; }
+) {
+  const { id } = await params;   <span class="c">// ← sin el await, id sería undefined</span>
+}</code></pre>
+
+      <h3>Responder</h3>
+<pre><code>return NextResponse.json(
+  { mensaje: "Creado", data: resultado },  <span class="c">// 1er argumento: el cuerpo JSON</span>
+  { status: 201 }                          <span class="c">// 2do: opciones (status, headers)</span>
+);</code></pre>
+
+      <h3>Cableado del hexágono en la ruta</h3>
+      <p>La ruta es el único lugar donde se conecta el mundo abstracto con el concreto:</p>
+<pre><code>export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+
+    const repository = new DrizzleLibroRepository();   <span class="c">// implementación concreta</span>
+    const useCase = new CrearLibroUseCase(repository); <span class="c">// se la inyectás al caso de uso</span>
+
+    const resultado = await useCase.execute({
+      titulo: body.titulo,
+      paginas: body.paginas,
+    });
+
+    return NextResponse.json({ data: resultado }, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+}</code></pre>
+
+      <div class="note key">
+        <span class="tag">El premio de toda la arquitectura</span>
+        <p>Este es el punto exacto donde el hexágono se «enchufa». Cambiar Drizzle por otra cosa significa tocar <strong>solo esa línea</strong>, en ningún otro lado.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════ 7 ══════════════ -->
+    <section id="s7">
+      <h2><span class="sn">07</span><span>Códigos de estado HTTP</span></h2>
+      <p class="dek">La regla mental: 4xx = culpa del cliente. 5xx = culpa tuya.</p>
+
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Código</th><th>Significado</th><th>Cuándo usarlo acá</th></tr></thead>
+          <tbody>
+            <tr><td><strong>200</strong> OK</td><td>Salió bien</td><td>GET exitoso</td></tr>
+            <tr><td><strong>201</strong> Created</td><td>Recurso creado</td><td>POST exitoso</td></tr>
+            <tr><td><strong>204</strong> No Content</td><td>Bien, sin cuerpo</td><td>DELETE exitoso</td></tr>
+            <tr><td><strong>400</strong> Bad Request</td><td>El cliente mandó mal los datos</td><td>Falló la validación de la entidad</td></tr>
+            <tr><td><strong>404</strong> Not Found</td><td>No existe el recurso</td><td><code>findById</code> devolvió <code>null</code></td></tr>
+            <tr><td><strong>409</strong> Conflict</td><td>Choca con el estado actual</td><td>Sin capacidad, sobreventa</td></tr>
+            <tr><td><strong>422</strong> Unprocessable</td><td>Bien formado pero inválido</td><td>Alternativa a 400</td></tr>
+            <tr><td><strong>500</strong> Server Error</td><td>Se rompió el servidor</td><td>BD caída, bug inesperado</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Hoy todos tus errores caen en 400. El problema: <code>catch</code> recibe un <code>Error</code> genérico y no puede distinguir «capacidad insuficiente» (409) de «evento no existe» (404) de «la BD explotó» (500). La solución idiomática son clases de error propias:</p>
+
+<pre><code>export class LibroNotFoundError extends Error {
+  constructor(id: string) {
+    super(`Libro ${id} no encontrado`);
+    this.name = 'LibroNotFoundError';
+  }
+}
+
+<span class="c">// En la ruta, el catch ya puede decidir:</span>
+catch (error) {
+  if (error instanceof LibroNotFoundError) {
+    return NextResponse.json({ error: error.message }, { status: 404 });
+  }
+  return NextResponse.json({ error: "Error interno" }, { status: 500 });
+}</code></pre>
+    </section>
+
+    <!-- ══════════════ 8 ══════════════ -->
+    <section id="s8">
+      <h2><span class="sn">08</span><span>Comandos del día a día</span></h2>
+      <p class="dek">Los seis que vas a escribir mil veces.</p>
+
+<pre><code>npm run dev              <span class="c"># servidor de desarrollo en http://localhost:3000</span>
+npm run build            <span class="c"># build de producción (falla si hay errores de tipos)</span>
+npm run lint             <span class="c"># ESLint</span>
+
+npx tsc --noEmit         <span class="c"># ⭐ el más útil: chequea TODOS los tipos sin generar archivos</span>
+npx drizzle-kit push     <span class="c"># sincroniza el schema con la BD</span>
+npx drizzle-kit studio   <span class="c"># GUI de la base de datos</span></code></pre>
+
+      <div class="note key">
+        <span class="tag">Costumbre sana</span>
+        <p><code>npx tsc --noEmit</code> después de cada bloque de código. Es más rápido que levantar el server y te muestra todos los errores de golpe.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════ 9 ══════════════ -->
+    <section id="s9">
+      <h2><span class="sn">09</span><span>Probar la API</span></h2>
+      <p class="dek">Con el servidor corriendo (<code>npm run dev</code>).</p>
+
+<pre><code><span class="c"># POST — crear</span>
+curl -X POST http://localhost:3000/api/venues \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Teatro Caupolicán","address":"San Diego 850","standardCapacity":3000}'
+
+<span class="c"># GET — listar</span>
+curl http://localhost:3000/api/venues
+
+<span class="c"># GET — por id</span>
+curl http://localhost:3000/api/venues/EL-UUID-QUE-TE-DEVOLVIO</code></pre>
+
+      <div class="note warn">
+        <span class="tag">En PowerShell</span>
+        <p><code>curl</code> es un alias de <code>Invoke-WebRequest</code> y la sintaxis cambia. Usá <code>curl.exe</code> explícitamente, o mejor Postman / Thunder Client / la extensión REST Client de VS&nbsp;Code.</p>
+      </div>
+
+      <div class="note">
+        <span class="tag" style="color:var(--ink-faint)">Orden obligatorio</span>
+        <p>Primero creá un <code>venue</code> → copiá su <code>id</code> → usalo como <code>venueId</code> al crear un <code>event</code>. Al revés falla por foreign key.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════ 10 ══════════════ -->
+    <section id="s10">
+      <h2><span class="sn">10</span><span>Errores que ya cometiste (o casi)</span></h2>
+      <p class="dek">Guardá esta lista, son los que más se repiten.</p>
+
+      <ol class="mistakes">
+        <li><span><strong>Import fantasma</strong> — <code>import { error } from "console"</code> que nunca se usa. El linter lo marca; borralos.</span></li>
+        <li><span><strong><code>&amp;&amp;</code> donde va <code>||</code> en un guard</strong> — <code>if (x &amp;&amp; x.trim() === '')</code> nunca detecta <code>""</code>. Repasá los valores falsy en la sección 02.</span></li>
+        <li><span><strong>Doble <code>;;</code></strong> — no rompe nada, pero delata copy-paste.</span></li>
+        <li><span><strong><code>excecute</code> vs <code>execute</code></strong> — un typo en un nombre de método convierte dos clases que «hacen lo mismo» en dos clases incompatibles. TypeScript no te avisa porque no hay interface que obligue.</span></li>
+        <li><span><strong>Método en PascalCase</strong> — <code>SellTicket()</code> parece un constructor. Métodos siempre en camelCase.</span></li>
+        <li><span><strong><code>routes.ts</code> en vez de <code>route.ts</code></strong> — Next no lo registra y la ruta devuelve 404 sin ningún error visible.</span></li>
+        <li><span><strong>Falta de <code>await</code></strong> — la variable queda con una Promise adentro y toda condición sobre ella es truthy.</span></li>
+        <li><span><strong>Import no usado en el schema</strong> (<code>decimal</code>) — ruido que confunde al leer.</span></li>
+        <li><span><strong>Validar reglas de creación en el constructor</strong> — rompe la reconstitución desde la BD. Ver sección 02.</span></li>
+        <li><span><strong><code>.env*</code> en <code>.gitignore</code></strong> — también ignora <code>.env.example</code>, que sí querés versionar. Se arregla con una línea de excepción <code>!</code>.</span></li>
+      </ol>
+    </section>
+
+    <!-- ══════════════ APÉNDICE ══════════════ -->
+    <section id="ap">
+      <h2><span class="sn">—</span><span>Apéndice: el diccionario</span></h2>
+      <p class="dek">Traducción práctica de la jerga, agrupada por tema. Cuando una palabra aparece en tu código, se dice dónde.</p>
+
+      <h3>Arquitectura y diseño</h3>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Término</th><th>Traducción práctica</th></tr></thead>
+          <tbody>
+            <tr><td>Entidad</td><td>Objeto con identidad propia y reglas que se autoprotegen. Dos entradas con los mismos datos pero distinto <code>id</code> son entidades distintas.</td></tr>
+            <tr><td>Entidad rica</td><td>Entidad que además de datos tiene comportamiento y validación. Lo contrario es el <em>modelo anémico</em>: una bolsa de propiedades públicas sin ninguna regla, donde la lógica termina desparramada por todos lados.</td></tr>
+            <tr><td>Value Object</td><td>Objeto de dominio sin identidad: vale por su contenido, no por quién es. <code>$5.000 CLP</code> es intercambiable con cualquier otro <code>$5.000 CLP</code>. Se usa para conceptos con reglas propias (<code>Dinero</code>, <code>Email</code>) que hoy tenés como <code>number</code> o <code>string</code> sueltos.</td></tr>
+            <tr><td>Aggregate</td><td>Grupo de entidades que se modifican como una sola unidad y comparten una regla que las abarca. En TicketHexa, «evento + sus tickets» es el candidato natural: la regla de no sobrevender los cruza a los dos.</td></tr>
+            <tr><td>Raíz del aggregate</td><td>La única entidad del grupo a la que se le habla desde afuera. Nadie modifica un ticket sin pasar por su evento.</td></tr>
+            <tr><td>Puerto</td><td>Interface que define <strong>qué</strong> se necesita, sin decir <strong>cómo</strong>. El enchufe de la pared.</td></tr>
+            <tr><td>Adaptador</td><td>Clase concreta que implementa un puerto con tecnología real. El aparato que enchufás.</td></tr>
+            <tr><td>Driving / driven</td><td>Los dos lados del hexágono. <em>Driving</em> (primario) es quien te llama: HTTP, CLI, tests. <em>Driven</em> (secundario) es lo que vos llamás: base de datos, email. La pregunta que los separa: quién empieza la conversación.</td></tr>
+            <tr><td><strong>Repositorio</strong></td><td>El patrón que hace que guardar y buscar objetos parezca una colección en memoria, escondiendo que abajo hay SQL. Por eso los métodos se llaman <code>save</code> y <code>findById</code> y no <code>insert</code> o <code>select</code>: el dominio pide en su idioma, nunca en el de la base. Es el puerto de salida más común, y en tu proyecto son las tres interfaces <code>I*Repository</code>.</td></tr>
+            <tr><td>Servicio de dominio</td><td>Lógica de negocio que no cae naturalmente dentro de ninguna entidad porque involucra a varias. Ojo: es la excusa favorita para vaciar las entidades. Usalo solo cuando de verdad no hay dueño claro.</td></tr>
+            <tr><td>Caso de uso</td><td>Coordinador de un flujo completo. Busca, le pide a la entidad, guarda. No tiene reglas ni SQL. También lo vas a ver como <em>application service</em> o <em>interactor</em>.</td></tr>
+            <tr><td><strong>DTO</strong></td><td><em>Data Transfer Object</em>. Una <code>interface</code> plana que describe los datos que cruzan una frontera, sin comportamiento. Cumple dos funciones: documenta qué espera cada capa, y filtra — lo que no está declarado en el DTO no entra. Es la diferencia entre recibir <code>body</code> crudo de internet y recibir exactamente los tres campos que te importan.</td></tr>
+            <tr><td>Inyección de dependencias</td><td>Recibir lo que necesitás por constructor en vez de fabricarlo adentro. Es lo que te permite pasar un repositorio falso en los tests.</td></tr>
+            <tr><td>Inversión de dependencias</td><td>La regla que hace posible todo el patrón: la interface vive del lado del que la <em>usa</em> (el núcleo), no del que la <em>implementa</em> (la infraestructura). Por eso <code>ports/</code> está dentro de <code>core/</code>.</td></tr>
+            <tr><td>Invariante</td><td>Regla que siempre debe cumplirse mientras el objeto exista. «La capacidad nunca es negativa». Se protege validando en el constructor y en cada método que muta.</td></tr>
+            <tr><td>Reconstitución</td><td>Rearmar un objeto de dominio desde datos guardados. Distinto de crearlo: las reglas de creación no siempre aplican al rehidratar. Ver sección 02.</td></tr>
+            <tr><td>Mapeo</td><td>Traducir entre fila de base de datos y objeto de dominio, en las dos direcciones. Vive en el adaptador y en ningún otro lado.</td></tr>
+            <tr><td>Modelo anémico</td><td>El antipatrón: entidades que son solo propiedades públicas, con toda la lógica en servicios externos. Se reconoce porque las clases del dominio no tienen ni un solo método.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>TypeScript</h3>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Término</th><th>Traducción práctica</th></tr></thead>
+          <tbody>
+            <tr><td>Instanciar</td><td>Usar <code>new</code> sobre una clase para fabricar un objeto real en memoria. La clase es el plano; la instancia, la casa.</td></tr>
+            <tr><td><code>implements</code></td><td>Declarar que una clase cumple un contrato. Si falta un método o cambia una firma, el error salta al compilar y no en producción.</td></tr>
+            <tr><td>Union type</td><td>Un tipo que solo admite valores de una lista cerrada: <code>'pendiente' | 'pagado'</code>. Convierte un error de datos en un error de compilación.</td></tr>
+            <tr><td>Narrowing</td><td>Achicar un tipo amplio a uno concreto dentro de un bloque, usando <code>typeof</code>, <code>instanceof</code> o un <code>if</code>. Es lo que te deja usar <code>unknown</code> con seguridad en vez de <code>any</code>.</td></tr>
+            <tr><td>Type guard</td><td>La condición que hace el narrowing. <code>if (error instanceof EventNotFoundError)</code> es un type guard.</td></tr>
+            <tr><td>Genérico</td><td>Un tipo que recibe otro tipo como parámetro: <code>Promise&lt;Event&gt;</code>, <code>Array&lt;string&gt;</code>. Sirve para escribir una vez algo que funciona con cualquier tipo sin perder el tipado.</td></tr>
+            <tr><td>Parameter property</td><td>El atajo <code>constructor(private readonly repo: IRepo) {}</code>: el modificador en el parámetro crea y asigna la propiedad de una. Ya lo usás en los tres casos de uso.</td></tr>
+            <tr><td><code>readonly</code></td><td>La propiedad se asigna una vez en el constructor y después no se puede cambiar. Se usa para el <code>id</code>: la identidad de una entidad no muta.</td></tr>
+            <tr><td>Truthy / falsy</td><td>Cómo se comporta un valor en un <code>if</code>. Falsy: <code>false</code>, <code>0</code>, <code>""</code>, <code>null</code>, <code>undefined</code>, <code>NaN</code>. Todo lo demás es truthy, incluidos <code>[]</code> y <code>{}</code>.</td></tr>
+            <tr><td>Optional chaining <code>?.</code></td><td>Accede a una propiedad solo si el objeto no es <code>null</code>/<code>undefined</code>; si lo es, devuelve <code>undefined</code> en vez de reventar.</td></tr>
+            <tr><td>Nullish coalescing <code>??</code></td><td>Valor por defecto que se aplica solo ante <code>null</code> o <code>undefined</code> — a diferencia de <code>||</code>, que también salta con <code>0</code> y <code>""</code>.</td></tr>
+            <tr><td>Structural typing</td><td>TypeScript compara tipos por su <em>forma</em>, no por su nombre. Si un objeto tiene los métodos que pide una interface, la cumple aunque nunca haya escrito <code>implements</code>. Por eso un repositorio falso funciona sin heredar de nada.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Asincronía</h3>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Término</th><th>Traducción práctica</th></tr></thead>
+          <tbody>
+            <tr><td>Promise</td><td>Un valor que todavía no llegó. <code>Promise&lt;Event&gt;</code> es «te prometo un Event más adelante».</td></tr>
+            <tr><td><code>await</code></td><td>Desempaqueta la promesa: frena ahí hasta que el valor esté. Sin él te quedás con la promesa en la mano, que siempre es truthy.</td></tr>
+            <tr><td>Condición de carrera</td><td>Dos operaciones simultáneas que leen el mismo estado y ambas deciden que pueden seguir. Es exactamente el riesgo de sobreventa: dos compras leen <code>capacity = 1</code>, las dos validan bien, las dos venden.</td></tr>
+            <tr><td>Bloqueo optimista</td><td>Una de las curas de la carrera: guardás una columna <code>version</code> y el <code>UPDATE</code> exige que no haya cambiado. Si otro llegó antes, tu update no afecta ninguna fila y sabés que perdiste.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Base de datos</h3>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Término</th><th>Traducción práctica</th></tr></thead>
+          <tbody>
+            <tr><td>ORM</td><td><em>Object-Relational Mapper</em>. Traduce entre objetos de tu lenguaje y tablas de SQL, con tipado. Drizzle es el tuyo.</td></tr>
+            <tr><td>Schema</td><td>La definición de tus tablas en código. En tu proyecto, <code>src/infrastructure/db/schema.ts</code>. Es la fuente de verdad de la estructura de la base.</td></tr>
+            <tr><td>Migración</td><td>Un archivo con los cambios de estructura de la base, versionado igual que el código. Permite reproducir la misma base en cualquier máquina y volver atrás si algo sale mal.</td></tr>
+            <tr><td><code>push</code> vs <code>generate</code></td><td><code>push</code> aplica el schema directo a la base — cómodo en desarrollo, sin historial. <code>generate</code> + <code>migrate</code> crea los <code>.sql</code> versionados — es lo que se usa en producción.</td></tr>
+            <tr><td>Foreign key</td><td>Una columna que obliga a que su valor exista en otra tabla. Postgres la hace cumplir aunque tu código no la valide: la base tiene la última palabra.</td></tr>
+            <tr><td>Transacción</td><td>Un grupo de operaciones que ocurren todas o ninguna. Es lo que le falta hoy a <code>CreateTicketUseCase</code>: descontar capacidad y guardar el ticket son dos viajes sueltos.</td></tr>
+            <tr><td>Atomicidad</td><td>La propiedad que garantiza la transacción: no existe un estado intermedio visible. O se hicieron las dos cosas, o ninguna.</td></tr>
+            <tr><td>Rollback</td><td>Deshacer todo lo hecho dentro de una transacción que falló, dejando la base como estaba antes de empezar.</td></tr>
+            <tr><td>UUID</td><td>Identificador único de 128 bits generado sin coordinación central. Ventaja sobre un id autoincremental: lo podés generar en el dominio, antes de tocar la base — que es exactamente lo que hacés con <code>crypto.randomUUID()</code>.</td></tr>
+            <tr><td>Normalización</td><td>Separar los datos en tablas para no repetir información. Tener <code>venues</code> aparte de <code>events</code> en vez de repetir la dirección en cada evento es normalización.</td></tr>
+            <tr><td>Tabla intermedia</td><td>La que rompe una relación muchos-a-muchos en dos de uno-a-muchos. <code>orders</code> es la tuya: conecta usuarios con eventos y además guarda datos propios de la compra.</td></tr>
+            <tr><td>Serverless</td><td>La base se enciende cuando la usás y se apaga sola. Pagás por uso, no por tiempo encendida. Es lo que hace Neon, y por eso el driver es HTTP en vez de una conexión persistente.</td></tr>
+            <tr><td>Seed</td><td>Script que llena la base con datos de prueba. Te va a hacer falta apenas tengas usuarios, porque sin un <code>user</code> en la tabla no podés insertar ningún ticket.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>HTTP y API</h3>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Término</th><th>Traducción práctica</th></tr></thead>
+          <tbody>
+            <tr><td>REST</td><td>Un estilo de API donde las URLs nombran <em>recursos</em> (sustantivos) y el verbo HTTP dice qué hacerles. <code>POST /api/events</code>, no <code>/api/crearEvento</code>.</td></tr>
+            <tr><td>Endpoint</td><td>Una combinación concreta de ruta + verbo. <code>GET /api/venues</code> y <code>POST /api/venues</code> son dos endpoints en el mismo archivo.</td></tr>
+            <tr><td>CRUD</td><td><em>Create, Read, Update, Delete</em>. Las cuatro operaciones básicas sobre un recurso, que mapean a POST, GET, PUT/PATCH y DELETE.</td></tr>
+            <tr><td>Payload / body</td><td>El cuerpo de la petición: los datos que manda el cliente. En Next lo leés con <code>await request.json()</code>, y llega tipado como <code>any</code>.</td></tr>
+            <tr><td>Idempotencia</td><td>Que repetir la misma petición dé el mismo resultado. <code>GET</code> y <code>DELETE</code> lo son; <code>POST</code> no — por eso apretar dos veces «comprar» puede generar dos tickets.</td></tr>
+            <tr><td>Handler</td><td>La función que atiende un endpoint. En App Router son las funciones exportadas con el nombre del verbo dentro de <code>route.ts</code>.</td></tr>
+            <tr><td>Middleware</td><td>Código que corre antes del handler para todas las rutas que coincidan: autenticación, logs, CORS.</td></tr>
+            <tr><td>Serialización</td><td>Convertir un objeto de memoria a un formato transmisible, casi siempre JSON. Ojo: un <code>Date</code> serializado vuelve como <code>string</code>, y por eso en la ruta hacés <code>new Date(body.date)</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Testing y despliegue <span style="color:var(--ink-faint);font-weight:400">— lo que viene</span></h3>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Término</th><th>Traducción práctica</th></tr></thead>
+          <tbody>
+            <tr><td>Test unitario</td><td>Prueba una pieza aislada, sin base de datos ni red. Tus entidades son el caso ideal: <code>Event.sellTicket()</code> es lógica pura.</td></tr>
+            <tr><td>Test de integración</td><td>Prueba que dos piezas reales se entiendan — por ejemplo el repositorio Drizzle contra un Postgres de verdad levantado en Docker.</td></tr>
+            <tr><td>Test E2E</td><td><em>End to end</em>. Recorre el flujo completo como lo haría una persona, desde la petición HTTP hasta la base. Playwright es la herramienta.</td></tr>
+            <tr><td>Test double</td><td>El nombre paraguas de cualquier reemplazo falso de una dependencia real. Se divide en <em>stub</em> (devuelve respuestas fijas), <em>mock</em> (además verifica que lo llamaron) y <em>fake</em> (implementación simplificada pero funcional, como un repositorio que guarda en un array).</td></tr>
+            <tr><td>Arrange · Act · Assert</td><td>La estructura de un test legible: preparar el escenario, ejecutar la acción, comprobar el resultado. Un test que mezcla las tres cosas es difícil de leer cuando falla.</td></tr>
+            <tr><td>Fixture</td><td>Datos de prueba preparados que varios tests reutilizan.</td></tr>
+            <tr><td>Cobertura</td><td>Qué porcentaje del código ejecutan tus tests. Útil para encontrar zonas sin probar, pésimo como meta en sí misma.</td></tr>
+            <tr><td>Contenedor</td><td>Un proceso aislado con su propio sistema de archivos y dependencias. Te deja correr Postgres localmente sin instalarlo en tu máquina.</td></tr>
+            <tr><td>Imagen</td><td>La plantilla congelada desde la que se crean contenedores. El <code>Dockerfile</code> es la receta para construir una.</td></tr>
+            <tr><td>CI / CD</td><td><em>Integración continua</em>: cada push corre tests solo. <em>Despliegue continuo</em>: si pasan, se publica solo.</td></tr>
+            <tr><td>Variable de entorno</td><td>Configuración que vive fuera del código porque cambia según dónde corra la app, o porque es secreta. Tu <code>DATABASE_URL</code> es el ejemplo.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </article>
+</div>
+
+<script>
+(function () {
+  var DATA = {
+    cliente: {
+      t: "Cliente",
+      r: "Fuera del hexágono",
+      p: [
+        "Quien inicia todo. Hoy sos vos con curl o Postman; mañana puede ser un navegador, una app móvil o el sistema de otra empresa.",
+        "El cliente no sabe absolutamente nada de tu arquitectura. Manda HTTP y recibe JSON. Que adentro haya un hexágono, capas o código espagueti le da exactamente lo mismo — y esa ignorancia es correcta y deseable."
+      ],
+      f: [["ok", "Postman / Thunder Client", "para probar a mano"],
+          ["pend", "Navegador (UI)", "cuando exista el front"]]
+    },
+    api: {
+      t: "Adaptador de entrada · API Routes",
+      r: "Driving · traductor",
+      p: [
+        "Su único trabajo es <strong>traducir</strong>: agarra una petición HTTP y la convierte en una llamada al caso de uso. Lee el JSON, arma el DTO, cablea las dependencias, y al volver mapea el resultado a un código de estado.",
+        "No decide nada de negocio. Si en una ruta aparece un <code>if</code> sobre capacidad o precios, esa lógica está en el lugar equivocado — pertenece a la entidad."
+      ],
+      f: [["ok", "api/venues/route.ts", "POST + GET"],
+          ["ok", "api/venues/[id]/route.ts", "GET"],
+          ["ok", "api/events/route.ts", "POST + GET"],
+          ["ok", "api/events/[id]/route.ts", "GET"],
+          ["pend", "api/tickets/route.ts", "no existe — sin esto la compra no es alcanzable por HTTP"]]
+    },
+    pentrada: {
+      t: "Puerto de entrada",
+      r: "Driving port · contrato",
+      p: [
+        "El contrato de lo que el núcleo <em>ofrece</em> al mundo exterior. Define qué operaciones están disponibles, sin decir quién las va a llamar.",
+        "<strong>En tu proyecto está implícito:</strong> no tenés interfaces de puerto de entrada — la clase del caso de uso hace de puerto y de implementación al mismo tiempo. Es una simplificación válida y muy común, y no te está haciendo daño.",
+        "Cuándo conviene extraerlo: el día que quieras testear una ruta API contra un núcleo falso, o que tengas dos implementaciones del mismo flujo. Hasta entonces, sería ceremonia sin beneficio."
+      ],
+      f: [["warn", "Implícito", "la clase del caso de uso cumple el rol"],
+          ["pend", "ICreateTicket…", "solo si algún día hace falta"]]
+    },
+    aplicacion: {
+      t: "Capa de aplicación · Casos de uso",
+      r: "Adentro del hexágono",
+      p: [
+        "El director de orquesta. Coordina un flujo completo de negocio: buscá esto, pedile aquello a la entidad, guardá el resultado.",
+        "No tiene reglas de negocio (esas viven en la entidad) ni SQL (eso es del adaptador). Si borrás un caso de uso, no perdés ninguna regla — perdés la coordinación entre ellas.",
+        "Acá es donde entra la <strong>inyección de dependencias</strong>: el constructor pide interfaces, nunca clases concretas. Por eso podés testearlo sin base de datos."
+      ],
+      f: [["ok", "CreateVenueUseCase", "funciona de punta a punta"],
+          ["ok", "CreateEventUseCase", "funciona de punta a punta"],
+          ["warn", "CreateTicketUseCase", "escrito, pero huérfano: falta el adaptador de salida y la ruta que lo llame"],
+          ["pend", "Transacción", "hoy update(event) y save(ticket) son dos viajes sueltos"]]
+    },
+    dominio: {
+      t: "Dominio · el núcleo",
+      r: "El corazón",
+      p: [
+        "Las reglas puras del negocio. Cero imports de Drizzle, de Next o de cualquier librería externa — esa es la prueba de que el hexágono sigue sano.",
+        "Son <strong>entidades ricas</strong>: si el objeto existe, es válido, porque el constructor lanza antes de dejar nacer algo inconsistente. Un <code>Event</code> con capacidad negativa no puede existir en memoria.",
+        "Este es el código que sobrevive a todo. Cambiar Postgres por Mongo, Next por Express, REST por GraphQL: nada de eso toca esta carpeta."
+      ],
+      f: [["ok", "Event.ts", "valida nombre, capacidad, costo; tiene sellTicket()"],
+          ["ok", "Venue.ts", "valida nombre, dirección, capacidad"],
+          ["ok", "Tickets.ts", "autogenera UUID, estado inicial pendiente"],
+          ["pend", "User.ts", "la tabla users existe en el schema pero no tiene entidad"],
+          ["pend", "Errores de dominio", "clases propias para distinguir 404 de 409 de 500"]]
+    },
+    psalida: {
+      t: "Puertos de salida",
+      r: "Driven ports · contratos",
+      p: [
+        "El núcleo declara qué necesita del mundo, <strong>en su propio idioma</strong>. Dice «guardame este Event», no «hacé un INSERT en la tabla events».",
+        "Acá es exactamente donde ocurre la inversión de dependencias, y es el punto más importante de todo el patrón: la interface vive dentro de <code>core/</code>, así que la infraestructura depende del núcleo y nunca al revés.",
+        "Como es una interface y no una clase, un mismo puerto admite varios adaptadores. Ese es el mecanismo que hace posible el testing sin base de datos."
+      ],
+      f: [["ok", "IEventRepository", "save · findById · findAll · update"],
+          ["ok", "IVenueRepository", "save · findById · findAll"],
+          ["ok", "ITicketRepository", "solo save() — alcanza para el flujo actual"]]
+    },
+    drizzle: {
+      t: "Adaptadores de salida · Drizzle",
+      r: "Driven · implementadores",
+      p: [
+        "Firman el contrato con <code>implements</code> y lo cumplen con tecnología real. Su trabajo es el <strong>mapeo</strong>: objeto de dominio ↔ fila de SQL, en las dos direcciones.",
+        "Regla que no hay que romper: una fila cruda de Drizzle nunca sale de esta carpeta. Si un caso de uso recibe un objeto con forma de fila en vez de una entidad, el aislamiento se filtró."
+      ],
+      f: [["ok", "DrizzelVenueRepository.ts", "save · findById · findAll"],
+          ["ok", "DrizzelEventRepository.ts", "save · findById · findAll · update"],
+          ["pend", "DrizzleTicketRepository.ts", "no existe — este es el bloqueante del flujo de compra"],
+          ["warn", "Nombre de archivo", "dice Drizzel; las clases adentro sí dicen Drizzle"]]
+    },
+    db: {
+      t: "Base de datos · Neon PostgreSQL",
+      r: "Fuera del hexágono",
+      p: [
+        "Postgres serverless en la nube, hablado a través de Drizzle ORM. Cuatro tablas con sus foreign keys.",
+        "Lo interesante desde el punto de vista de la arquitectura: <strong>esto es un detalle de implementación, no una decisión estructural.</strong> Cambiarla toca únicamente la columna de la derecha del diagrama.",
+        "Ojo con las foreign keys: Postgres rechaza un ticket cuyo userId no exista en users, por más que tu entidad esté perfectamente validada. La base tiene la última palabra."
+      ],
+      f: [["ok", "usersTable", "id · email · password · role"],
+          ["ok", "venuesTable", "id · name · address · standardCapacity"],
+          ["ok", "eventsTable", "FK a venues y a users"],
+          ["ok", "ordersTable", "FK a users y a events — rompe el N:N"]]
+    },
+    futdrive: {
+      t: "Adaptadores de entrada futuros",
+      r: "Driving · pendiente",
+      p: [
+        "Una UI en Next.js y tests E2E con Playwright son <strong>otro adaptador de entrada</strong>, no una capa nueva. Entran por el mismo puerto que las API Routes.",
+        "Por eso el diagrama los dibuja apuntando al mismo lugar: cuando agregues el front, el núcleo no se entera. No vas a tocar ni una línea de <code>core/</code>."
+      ],
+      f: [["pend", "UI Next.js", "React Server Components / Server Actions"],
+          ["pend", "Playwright", "E2E sobre los flujos críticos"],
+          ["pend", "Zod", "validar el body en el borde, antes de que llegue a la entidad"]]
+    },
+    futtest: {
+      t: "Repositorios en memoria · Vitest",
+      r: "Driven · pendiente",
+      p: [
+        "Acá se cobra toda la inversión que hiciste en el patrón. Un repositorio falso que guarda en un array y firma el <strong>mismo puerto</strong> que el de Drizzle.",
+        "Con eso testeás que <code>CreateTicketUseCase</code> no sobrevende sin levantar Postgres, sin Docker y sin red — en milisegundos. El caso de uso no puede notar la diferencia, porque solo conoce la interface.",
+        "Si te preguntabas para qué tanta ceremonia de puertos y adaptadores: es para esto."
+      ],
+      f: [["pend", "Vitest", "todavía no está instalado"],
+          ["pend", "InMemoryEventRepository", "implements IEventRepository"],
+          ["pend", "Tests de entidad", "empezar por Event.sellTicket, que es lógica pura"],
+          ["pend", "Docker", "Postgres local para tests de integración"]]
+    }
+  };
+
+  var panel = document.getElementById('dgPanel');
+  var nodes = document.querySelectorAll('.dg-node');
+  if (!panel || !nodes.length) return;
+
+  function render(key) {
+    var d = DATA[key];
+    if (!d) return;
+    var html = '<h4>' + d.t + '</h4><p class="role">' + d.r + '</p>';
+    d.p.forEach(function (par) { html += '<p>' + par + '</p>'; });
+    if (d.f && d.f.length) {
+      html += '<ul class="files">';
+      d.f.forEach(function (row) {
+        var word = row[0] === 'ok' ? 'listo' : (row[0] === 'warn' ? 'ojo' : 'falta');
+        html += '<li><span class="chip ' + row[0] + '">' + word + '</span>'
+             +  '<span>' + row[1] + (row[2] ? '<br><em>' + row[2] + '</em>' : '') + '</span></li>';
+      });
+      html += '</ul>';
+    }
+    panel.innerHTML = html;
+  }
+
+  nodes.forEach(function (n) {
+    function pick() {
+      nodes.forEach(function (o) { o.classList.remove('on'); });
+      n.classList.add('on');
+      render(n.getAttribute('data-n'));
+    }
+    n.addEventListener('click', pick);
+    n.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault();
+        pick();
+      }
+    });
+  });
+})();
+</script>
+
+<footer>
+  <span>TicketHexa · SINTAXIS.md</span>
+  <span>Actualizar cuando aparezcan: transacciones, Vitest, Docker, Zod</span>
+</footer>
