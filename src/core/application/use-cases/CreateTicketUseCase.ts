@@ -19,7 +19,7 @@ export class CreateTicketUseCase{
         if (!event){
             throw new Error("el evento solicitado no existe");
         }
-        event.SellTicket(data.ticketQuantity);
+        event.sellTicket(data.ticketQuantity);
         const newTicket= new Ticket({
             userID: data.userID ,
             eventID: data.eventID,
