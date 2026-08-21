@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 // 
 import { CreateVenueUseCase } from '../../../core/application/use-cases/CreateVenueUseCase';
-import { DrizzleVenueRepository } from '@/src/infrastructure/repositories/DrizzelVenueRepository';
+import { DrizzleVenueRepository } from '@/src/infrastructure/repositories/DrizzleVenueRepository';
 
 export async function POST(request: Request){
     try{

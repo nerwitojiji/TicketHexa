@@ -1,5 +1,5 @@
 // src/infrastructure/db/schema.ts
-import { pgTable, uuid, varchar, timestamp, integer, decimal } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, timestamp, integer } from 'drizzle-orm/pg-core';
 
 // ==========================================
 // 1. USUARIOS (Users)
@@ -28,8 +28,11 @@ export const eventsTable = pgTable('events', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   date: timestamp('date', { mode: 'date' }).notNull(),
-  // Opcional: Capacidad específica de este evento (por si cierran galerías y es menor a la del recinto)
-  capacity: integer('capacity').notNull(), 
+  // Aforo de ESTE evento. Puede ser menor al del recinto (por si cierran galerías).
+  // No cambia nunca: en el dominio es readonly.
+  totalCapacity: integer('total_capacity').notNull(),
+  // Cuántos lugares quedan por vender. Baja con cada venta; 0 = agotado.
+  availableSeats: integer('available_seats').notNull(),
   cost: integer('cost').notNull(),
 
   // --- FOREIGN KEYS (Las líneas de tu diagrama) ---

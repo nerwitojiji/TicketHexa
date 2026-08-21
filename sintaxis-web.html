@@ -604,7 +604,7 @@
     <div class="masthead-meta">
       <span>TypeScript 5 · Next.js 16 · Drizzle 0.45</span>
       <span>Actualizado 17·08·2026</span>
-      <span>11 secciones + apéndice · v3</span>
+      <span>12 secciones + apéndice · v4</span>
     </div>
   </div>
 </header>
@@ -625,6 +625,7 @@
       <li><a href="#s8"><span class="n">08</span><span>Comandos</span></a></li>
       <li><a href="#s9"><span class="n">09</span><span>Probar la API</span></a></li>
       <li><a href="#s10"><span class="n">10</span><span>Errores frecuentes</span></a></li>
+      <li><a href="#s11"><span class="n">11</span><span>Fábricas y tipos</span></a></li>
       <li><a href="#ap"><span class="n">—</span><span>Diccionario</span></a></li>
     </ol>
   </nav>
@@ -1566,6 +1567,231 @@ curl http://localhost:3000/api/venues/EL-UUID-QUE-TE-DEVOLVIO</code></pre>
       </ol>
     </section>
 
+    <!-- ══════════════ 11 ══════════════ -->
+    <section id="s11">
+      <h2><span class="sn">11</span><span>Fábricas y tipos derivados</span></h2>
+      <p class="dek">Todo lo que usa <code>Event</code> desde que separamos crear de reconstituir: métodos estáticos, constructor privado y tipos que se calculan a partir de otros.</p>
+
+      <h3><code>static</code>: métodos de la clase, no del objeto</h3>
+      <p>Un método normal pertenece a <strong>cada objeto</strong>. Uno <code>static</code> pertenece a <strong>la clase entera</strong>.</p>
+
+<pre><code>class Libro {
+  public prestar(): void { ... }        <span class="c">// método de INSTANCIA</span>
+  static create(props): Libro { ... }   <span class="c">// método de CLASE</span>
+}
+
+const libro = Libro.create({...});
+
+libro.prestar();       <span class="good">// ✅ sobre el objeto</span>
+Libro.create({...});   <span class="good">// ✅ sobre la clase</span>
+
+libro.create({...});   <span class="bad">// ❌ create no existe en las instancias</span>
+Libro.prestar();       <span class="bad">// ❌ prestar necesita un objeto concreto</span></code></pre>
+
+      <div class="scroll">
+        <table>
+          <thead><tr><th></th><th>Método normal</th><th>Método <code>static</code></th></tr></thead>
+          <tbody>
+            <tr><td>¿A quién pertenece?</td><td>A cada objeto</td><td>A la clase</td></tr>
+            <tr><td>¿Cómo se llama?</td><td><code>libro.prestar()</code></td><td><code>Libro.create()</code></td></tr>
+            <tr><td>¿Hay <code>this</code>?</td><td>Sí, el objeto</td><td>No hay objeto todavía</td></tr>
+            <tr><td>Sirve para</td><td>Comportamiento de <em>ese</em> objeto</td><td>Fabricar objetos, utilidades de la clase</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note key">
+        <span class="tag">La razón de fondo</span>
+        <p>Adentro de un método <code>static</code> no hay un objeto al que apuntar, porque todavía no existe. <strong>Por eso sirve justamente para fabricarlo.</strong> No podrías pedirle a un evento que se cree a sí mismo: hasta que el constructor termina, no hay evento.</p>
+      </div>
+
+      <h3>Modificadores de acceso</h3>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Modificador</th><th>Desde afuera</th><th>Desde adentro de la clase</th></tr></thead>
+          <tbody>
+            <tr><td><code>public</code></td><td>Sí</td><td>Sí</td></tr>
+            <tr><td><code>private</code></td><td><strong>No</strong></td><td>Sí</td></tr>
+            <tr><td><code>protected</code></td><td>No</td><td>Sí, y en las clases hijas</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Si no escribís nada, es <code>public</code>. Ponerlo explícito igual se agradece.</p>
+
+      <p><strong><code>private</code> en un método</strong> significa «esto es un detalle interno, no lo llames de afuera». Tu <code>validate()</code> es así: nadie tiene por qué validar un evento desde fuera de la entidad.</p>
+
+      <p><strong><code>private</code> en el constructor</strong> es más fuerte y menos obvio: <em>nadie puede hacer <code>new</code></em>.</p>
+
+<pre><code>class Libro {
+  private constructor(props: LibroProps) { ... }
+  static create(props): Libro { return new Libro(props); }  <span class="c">// adentro sí puede</span>
+}
+
+Libro.create({...});    <span class="good">// ✅ la única entrada</span>
+new Libro({...});       <span class="bad">// ❌ error de compilación</span></code></pre>
+
+      <p>Esa es la pieza que hace que las fábricas sean obligatorias en vez de sugeridas. Sin el <code>private</code>, cualquiera puede esquivarlas y las reglas que pusiste en <code>create()</code> quedan opcionales.</p>
+
+      <div class="note warn">
+        <span class="tag">Un detalle honesto</span>
+        <p>El <code>private</code> de TypeScript existe solo <strong>en tiempo de compilación</strong>. Al compilar a JavaScript desaparece, y en runtime nada impide tocar la propiedad. Para privacidad real de verdad existe el prefijo <code>#</code> (<code>#codigoInterno</code>), que es JavaScript puro. Para proteger el diseño contra vos misma y contra el equipo, <code>private</code> alcanza y sobra.</p>
+      </div>
+
+      <h3><code>readonly</code></h3>
+      <p>La propiedad se asigna una vez, en el constructor, y después nadie la puede cambiar.</p>
+
+<pre><code>public readonly id: string;                 <span class="c">// la identidad no muta</span>
+public readonly ejemplaresTotales: number;  <span class="c">// el aforo no muta</span>
+public ejemplaresDisponibles: number;       <span class="c">// esto sí baja con cada préstamo</span></code></pre>
+
+      <p>No es cosmético: convierte «acordate de no tocar esto» en una regla que el compilador verifica. Si algún método intentara restarle al total, el error salta al escribirlo.</p>
+
+      <h3>El patrón completo: fábricas estáticas</h3>
+      <p>Juntando las tres piezas —<code>static</code>, constructor <code>private</code> y <code>readonly</code>— sale el patrón que en la literatura se llama <strong>static factory method</strong>, o <em>named constructor</em>.</p>
+
+      <div class="flow">        Libro.create(...)                    Libro.fromDB(...)
+        "nace un libro"                      "vuelve de la base"
+               │                                    │
+        reglas de creación                   sin reglas de creación
+               │                                    │
+               └──────► private constructor ◄───────┘
+                        (asigna + valida lo
+                         que vale SIEMPRE)</div>
+
+      <p>La ventaja sobre los constructores sobrecargados: <strong>los constructores no pueden tener nombre, los métodos sí.</strong> <code>create</code> y <code>fromDB</code> se distinguen leyendo el call site, sin ir a buscar la firma.</p>
+
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Dónde</th><th>Qué va ahí</th></tr></thead>
+          <tbody>
+            <tr><td><code>constructor</code> (privado)</td><td>Asignar los campos y validar lo que es cierto en <strong>todos</strong> los caminos</td></tr>
+            <tr><td><code>create()</code></td><td>Reglas que solo valen al nacer, y derivar los campos calculados</td></tr>
+            <tr><td><code>fromDB()</code></td><td>Nada: solo delega. Existe para cerrar la puerta trasera y nombrar la intención</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Cuándo <em>no</em> usar el patrón</h3>
+      <p>Es una respuesta a un problema. Sin el problema, es ceremonia. La pregunta que decide:</p>
+
+      <div class="note key">
+        <span class="tag">El criterio</span>
+        <p>¿Hay alguna regla que valga al <strong>crear</strong> pero no al <strong>leer de la base</strong>?</p>
+      </div>
+
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Situación</th><th>Herramienta</th></tr></thead>
+          <tbody>
+            <tr><td>No hay ninguna asimetría</td><td>Constructor público. Nada más</td></tr>
+            <tr><td>La asimetría es <strong>poner un valor</strong> que al crear no existe</td><td>Un default con <code>??</code> alcanza</td></tr>
+            <tr><td>La asimetría es <strong>comprobar</strong> algo que solo aplica al crear</td><td>Ahí sí: las dos fábricas</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Un default no puede expresar «lanzá un error si la fecha es pasada, pero solo cuando el evento es nuevo». No hay <code>??</code> que haga eso. Por eso <code>Event</code> necesita las fábricas y <code>Venue</code> no.</p>
+
+      <h3>Utility types: tipos que se calculan</h3>
+      <p>TypeScript trae herramientas para fabricar un tipo a partir de otro, en vez de escribirlo de nuevo.</p>
+
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Utilidad</th><th>Qué hace</th></tr></thead>
+          <tbody>
+            <tr><td><code>Omit&lt;T, 'x'&gt;</code></td><td><code>T</code> pero <strong>sin</strong> la propiedad <code>x</code></td></tr>
+            <tr><td><code>Pick&lt;T, 'x'&gt;</code></td><td><code>T</code> pero <strong>solo</strong> con <code>x</code>. El espejo de Omit</td></tr>
+            <tr><td><code>Partial&lt;T&gt;</code></td><td><code>T</code> con <strong>todas</strong> las propiedades opcionales. Útil para updates parciales</td></tr>
+            <tr><td><code>Required&lt;T&gt;</code></td><td>Lo contrario: todas obligatorias</td></tr>
+            <tr><td><code>Readonly&lt;T&gt;</code></td><td>Todas inmutables</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+<pre><code>interface LibroProps {
+  id: string;
+  titulo: string;
+  ejemplaresTotales: number;
+  ejemplaresDisponibles: number;
+}
+
+type AltaLibroProps = Omit&lt;LibroProps, 'ejemplaresDisponibles'&gt;;
+
+<span class="c">// equivale EXACTAMENTE a haber escrito esto a mano:</span>
+type AltaLibroProps = {
+  id: string;
+  titulo: string;
+  ejemplaresTotales: number;
+};</code></pre>
+
+      <p><strong>¿Y por qué no escribirlo a mano?</strong> Porque se mantiene solo. El día que agregues <code>editorial</code> a <code>LibroProps</code>, el tipo derivado lo hereda. Escrito a mano, los dos se separan de a poco y nadie se entera hasta que algo falla.</p>
+
+      <p>El nombre de la propiedad va <strong>entre comillas</strong>: no pasás el valor, pasás su nombre como texto.</p>
+
+      <div class="note">
+        <span class="tag" style="color:var(--ink-faint)">Por qué <code>type</code> y no <code>interface</code></span>
+        <p>Porque <code>interface X = Omit&lt;...&gt;</code> es un error de sintaxis. Una <code>interface</code> declara una forma desde cero; <code>type</code> además puede <em>calcular</em> un tipo a partir de otros. Cada vez que un tipo se derive de otro, necesitás <code>type</code>.</p>
+      </div>
+
+      <h3>La garantía que compra</h3>
+      <p>Con la firma recortada, el error deja de ser algo que hay que atrapar y pasa a ser algo que no se puede escribir:</p>
+
+<pre><code>darDeAlta({ id: "1", titulo: "Rayuela", ejemplaresTotales: 3 });          <span class="good">// ✅</span>
+
+darDeAlta({ id: "2", titulo: "Ficciones", ejemplaresTotales: 5,
+            ejemplaresDisponibles: 2 });                                  <span class="bad">// ❌ no compila</span>
+<span class="bad">// error TS2353: Object literal may only specify known properties,</span>
+<span class="bad">//   and 'ejemplaresDisponibles' does not exist in type 'AltaLibroProps'.</span></code></pre>
+
+      <p>El principio se llama <strong>hacer que los estados inválidos sean imposibles de representar</strong>. En vez de permitir el error y atraparlo con una validación, diseñás el tipo para que el error no se pueda ni tipear.</p>
+
+      <div class="scroll">
+        <table>
+          <thead><tr><th></th><th>Validar en runtime</th><th>Tipo que lo impide</th></tr></thead>
+          <tbody>
+            <tr><td>¿Cuándo te enterás?</td><td>Al ejecutar</td><td>Al escribir, subrayado en rojo</td></tr>
+            <tr><td>¿Hay que acordarse?</td><td>Sí, de escribir el chequeo</td><td>No</td></tr>
+            <tr><td>¿Se puede olvidar?</td><td>Sí</td><td>No</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Spread <code>...</code></h3>
+      <p>Copia todas las propiedades de un objeto adentro de otro:</p>
+
+<pre><code>const base = { a: 1, b: 2 };
+
+const copia    = { ...base };            <span class="c">// { a: 1, b: 2 }</span>
+const ampliado = { ...base, c: 3 };      <span class="c">// { a: 1, b: 2, c: 3 }</span>
+const pisado   = { ...base, b: 99 };     <span class="c">// { a: 1, b: 99 }  ← gana el último</span></code></pre>
+
+      <p>Es la pieza que le permite a <code>create</code> armar un objeto <strong>nuevo</strong> con lo que recibió más lo que calcula, en vez de modificar el que le prestaron:</p>
+
+<pre><code>static create(props: AltaLibroProps): Libro {
+  return new Libro({
+    ...props,                                        <span class="c">// todo lo que llegó</span>
+    ejemplaresDisponibles: props.ejemplaresTotales,  <span class="c">// más lo derivado</span>
+  });
+}</code></pre>
+
+      <div class="note warn">
+        <span class="tag">Ojo</span>
+        <p>El spread copia <strong>un solo nivel</strong>. Si una propiedad es un objeto anidado, se copia la referencia, no el contenido — los dos objetos van a apuntar al mismo. Se llama <em>copia superficial</em>. Para props planos como los tuyos no es problema.</p>
+      </div>
+
+      <h3>Y el otro camino: mutar lo ajeno</h3>
+      <p>Vale la pena ver qué se evita, porque es un error tentador:</p>
+
+<pre><code><span class="bad">// ❌ modifica el objeto que le prestaron</span>
+static create(props: LibroProps): Libro {
+  props.ejemplaresDisponibles = props.ejemplaresTotales;
+  return new Libro(props);
+}</code></pre>
+
+      <p>Dos problemas. El objeto pertenece a quien llamó, y ahora tiene un valor que esa persona nunca puso — un efecto a distancia difícil de rastrear. Y si esa línea vive adentro de un método llamado <code>validate…</code>, se rompe un principio con nombre: <strong>separación entre consultas y comandos</strong>. Una función o pregunta algo y devuelve una respuesta, o hace algo y cambia el estado. Nunca las dos, porque quien lee el nombre no sospecha la mitad oculta.</p>
+    </section>
+
     <!-- ══════════════ APÉNDICE ══════════════ -->
     <section id="ap">
       <h2><span class="sn">—</span><span>Apéndice: el diccionario</span></h2>
@@ -1593,6 +1819,7 @@ curl http://localhost:3000/api/venues/EL-UUID-QUE-TE-DEVOLVIO</code></pre>
             <tr><td>Invariante</td><td>Regla que siempre debe cumplirse mientras el objeto exista. «La capacidad nunca es negativa». Se protege validando en el constructor y en cada método que muta.</td></tr>
             <tr><td>Reconstitución</td><td>Rearmar un objeto de dominio desde datos guardados. Distinto de crearlo: las reglas de creación no siempre aplican al rehidratar. Ver sección 02.</td></tr>
             <tr><td>Mapeo</td><td>Traducir entre fila de base de datos y objeto de dominio, en las dos direcciones. Vive en el adaptador y en ningún otro lado.</td></tr>
+            <tr><td>Separación consulta/comando</td><td>Una función o <em>pregunta</em> algo y devuelve una respuesta, o <em>hace</em> algo y cambia el estado. Nunca las dos. Un método llamado <code>validate…</code> que además asigna valores rompe este principio: quien lee el nombre no sospecha la mitad oculta.</td></tr>
             <tr><td>Modelo anémico</td><td>El antipatrón: entidades que son solo propiedades públicas, con toda la lógica en servicios externos. Se reconoce porque las clases del dominio no tienen ni un solo método.</td></tr>
           </tbody>
         </table>
@@ -1614,6 +1841,12 @@ curl http://localhost:3000/api/venues/EL-UUID-QUE-TE-DEVOLVIO</code></pre>
             <tr><td>Truthy / falsy</td><td>Cómo se comporta un valor en un <code>if</code>. Falsy: <code>false</code>, <code>0</code>, <code>""</code>, <code>null</code>, <code>undefined</code>, <code>NaN</code>. Todo lo demás es truthy, incluidos <code>[]</code> y <code>{}</code>.</td></tr>
             <tr><td>Optional chaining <code>?.</code></td><td>Accede a una propiedad solo si el objeto no es <code>null</code>/<code>undefined</code>; si lo es, devuelve <code>undefined</code> en vez de reventar.</td></tr>
             <tr><td>Nullish coalescing <code>??</code></td><td>Valor por defecto que se aplica solo ante <code>null</code> o <code>undefined</code> — a diferencia de <code>||</code>, que también salta con <code>0</code> y <code>""</code>.</td></tr>
+            <tr><td><code>static</code></td><td>Método que pertenece a la clase entera y no a cada objeto: se llama <code>Libro.create()</code>, no <code>libro.create()</code>. Adentro no hay <code>this</code> apuntando a una instancia, porque todavía no existe — y por eso sirve para fabricarlas.</td></tr>
+            <tr><td><code>private</code> / <code>public</code></td><td>Quién puede tocar un miembro desde afuera de la clase. <code>private</code> en un método marca un detalle interno; en el constructor es más fuerte: prohíbe <code>new</code> desde afuera y obliga a pasar por las fábricas. Existe solo en compilación — al pasar a JavaScript desaparece.</td></tr>
+            <tr><td>Static factory method</td><td>El patrón de constructor privado + métodos estáticos con nombre (<code>create</code>, <code>fromDB</code>). También se lo llama <em>named constructor</em>. Su ventaja sobre los constructores: los constructores no pueden tener nombre y los métodos sí, así que la intención se lee en el call site.</td></tr>
+            <tr><td>Utility type</td><td>Tipo que TypeScript calcula a partir de otro: <code>Omit</code> (sin tal propiedad), <code>Pick</code> (solo tal), <code>Partial</code> (todas opcionales), <code>Required</code>, <code>Readonly</code>. Se mantienen solos cuando cambia el tipo base.</td></tr>
+            <tr><td>Spread <code>...</code></td><td>Copia todas las propiedades de un objeto adentro de otro: <code>{ ...base, c: 3 }</code>. Gana el último que aparece, así que sirve también para pisar un valor. Copia un solo nivel (<em>copia superficial</em>).</td></tr>
+            <tr><td>Estados inválidos irrepresentables</td><td>Diseñar los tipos para que el error no se pueda ni escribir, en vez de permitirlo y atraparlo con una validación. Si <code>create</code> no recibe los asientos disponibles, nadie puede mandarlos mal.</td></tr>
             <tr><td>Structural typing</td><td>TypeScript compara tipos por su <em>forma</em>, no por su nombre. Si un objeto tiene los métodos que pide una interface, la cumple aunque nunca haya escrito <code>implements</code>. Por eso un repositorio falso funciona sin heredar de nada.</td></tr>
           </tbody>
         </table>

@@ -8,7 +8,7 @@ export interface EventProps {
   cost: number;
   venueId: string;
 }
-export type Evento = Omit<EventProps , 'availableSeats'>;
+export type CreateEventProps = Omit<EventProps,"availableSeats">;
 //2. LA ENTIDAD:
 export class Event {
   public readonly id: string;
@@ -33,7 +33,7 @@ export class Event {
   }
   //4. 2 Puertas para validacion de eventos
   //PUERTA A: VALIDA UN EVENTO QUE SE ESTA CREANDO
-  static create(props: Evento): Event {
+  static create(props: CreateEventProps): Event {
     Event.validateCreationRules(props);
     return new Event({
       ...props,
@@ -62,7 +62,8 @@ export class Event {
     }
     if (props.availableSeats > props.totalCapacity) {
       throw new Error(
-        "Los asientos disponibles no pueden ser mayores a la capacidad del recinto");
+        "Los asientos disponibles no pueden ser mayores a la capacidad del recinto",
+      );
     }
     if (props.totalCapacity <= 0) {
       throw new Error("La capacidad del recinto debe ser mayor a 0");
@@ -74,7 +75,7 @@ export class Event {
       throw new Error("El ID del lugar no puede estar vacío.");
     }
   }
-  private static validateCreationRules(props: Evento) {
+  private static validateCreationRules(props: CreateEventProps) {
     const now = new Date();
     if (props.date < now) {
       throw new Error(

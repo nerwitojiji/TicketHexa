@@ -1,4 +1,4 @@
-import { Ticket } from "../domain/entities/Tickets";
+import { Ticket } from "../domain/entities/Ticket";
 
 export interface ITicketRepository {
     save(ticket: Ticket): Promise<void>; 

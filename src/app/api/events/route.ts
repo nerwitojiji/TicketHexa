@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 // importamos los casos de uso (el director)
 // y nuestro repositorio (el trabajador)
 import { CreateEventUseCase } from '../../../core/application/use-cases/CreateEventUseCase';
-import { DrizzleEventRepository } from '@/src/infrastructure/repositories/DrizzelEventRepository';
+import { DrizzleEventRepository } from '@/src/infrastructure/repositories/DrizzleEventRepository';
 
 export async function POST (request: Request){
     try{

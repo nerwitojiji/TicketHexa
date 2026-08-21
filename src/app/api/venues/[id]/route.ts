@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { DrizzleVenueRepository } from '@/src/infrastructure/repositories/DrizzelVenueRepository';
+import { DrizzleVenueRepository } from '@/src/infrastructure/repositories/DrizzleVenueRepository';
 
 
 export async function GET(request: Request, {params}:{params:Promise<{id:string}>}) {

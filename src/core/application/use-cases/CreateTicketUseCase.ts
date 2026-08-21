@@ -1,4 +1,4 @@
-import { Ticket } from "../../domain/entities/Tickets";
+import { Ticket } from "../../domain/entities/Ticket";
 import { IEventRepository } from "../../ports/IEventRepository";
 import { ITicketRepository } from "../../ports/ITicketRepository";
 //DTO LO QUE ESPERAMOS RECIBIR DE LA API
